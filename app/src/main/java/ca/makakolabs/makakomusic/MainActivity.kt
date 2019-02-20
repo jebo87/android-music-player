@@ -7,14 +7,22 @@ import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.viewpager.widget.ViewPager
+import ca.makakolabs.makakomusic.adapters.MusicPagerAdapter
 import ca.makakolabs.makakomusic.fragments.SongsFragment
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
+import ca.makakolabs.makakomusic.helpers.ZoomOutTransformation
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     val fragmentManager = supportFragmentManager
+
+    private lateinit var musicPageAdapter: MusicPagerAdapter
+    private lateinit var viewPager:ViewPager
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +42,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+
+
+        //viewpager
+        musicPageAdapter = MusicPagerAdapter(supportFragmentManager)
+        viewPager = content_main_view_pager
+
+        viewPager.adapter = musicPageAdapter
+
+        val zoomOutTransformation = ZoomOutTransformation()
+        viewPager.setPageTransformer(true,zoomOutTransformation);
+
+
 
 
     }
@@ -66,10 +86,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle navigation view item clicks here.
         when (item.itemId) {
             R.id.songs_menu_item -> {
-                val fragment = SongsFragment()
-                val fragmentTransaction = fragmentManager.beginTransaction()
-                fragmentTransaction.replace(R.id.content_main,fragment)
-                fragmentTransaction.commit()
+//                val fragment = SongsFragment()
+//                val fragmentTransaction = fragmentManager.beginTransaction()
+//                fragmentTransaction.replace(R.id.content_main,fragment)
+//                fragmentTransaction.commit()
 
 
 

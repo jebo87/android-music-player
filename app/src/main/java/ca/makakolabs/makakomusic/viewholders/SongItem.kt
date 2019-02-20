@@ -1,38 +1,41 @@
 package ca.makakolabs.makakomusic.viewholders
 
-import android.content.ContentUris
 import android.net.Uri
-import android.util.Log
 import ca.makakolabs.makakomusic.R
 import ca.makakolabs.makakomusic.model.Song
-import com.squareup.picasso.Picasso
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
-import kotlinx.android.synthetic.main.song.view.*
-import java.net.URI
+import kotlinx.android.synthetic.main.song_card.view.*
 
 
-class SongItem( val song: Song) : Item<ViewHolder>(){
+class SongItem(private val song: Song) : Item<ViewHolder>() {
 
     companion object {
         val TAG = "SongItem"
     }
 
 
-    override fun getLayout()=R.layout.song
+//    override fun getLayout() = R.layout.song_horizontal
 
+    override fun getLayout() = R.layout.song_card
 
+//    var albumArtUri: Uri = Uri.parse("content://media/external/audio/albumart")
     override fun bind(holder: ViewHolder, position: Int) {
-        holder.itemView.song_title.text = song.title
-        holder.itemView.song_album.text = song.album
-        holder.itemView.song_artist.text = song.artist
-        if(song.albumArt != 0L) {
-            Log.d(TAG,"AlbumArt: "+song.albumArt)
+        holder.itemView.song_card_title.text = song.title
+        holder.itemView.song_card_duration.text = song.album
+        holder.itemView.song_card_artist.text = song.artist
 
-            var uri: Uri = Uri.parse("content://media/external/audio/albumart")
-            uri = ContentUris.withAppendedId(uri,song.albumArt)
-        Picasso.get().load(uri).into(holder.itemView.song_album_art)}
-
+        //In case we want to load an album art
+//        if (song.albumArt != 0L) {
+//            var uri = ContentUris.withAppendedId(albumArtUri, song.albumArt)
+//            Picasso.get()
+//                .load(uri)
+//                .resize(70, 70)
+//                .centerCrop()
+//                .placeholder(R.mipmap.ic_launcher_round)
+//                .error(R.mipmap.ic_launcher_round)
+//                .into(holder.itemView.song_album_art)
+//        }
 
 
     }

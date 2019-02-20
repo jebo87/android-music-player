@@ -9,4 +9,7 @@
         tools:showIn="@layout/app_bar_main"
         tools:context=".MainActivity" android:id="@+id/content_main">
 
+    <androidx.viewpager.widget.ViewPager
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" android:id="@+id/content_main_view_pager"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

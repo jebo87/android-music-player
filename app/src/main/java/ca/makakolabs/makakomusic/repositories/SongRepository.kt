@@ -10,6 +10,10 @@ import ca.makakolabs.makakomusic.model.Song
 class SongRepository (private val application: Application){
     private val songs: MutableList<Song>
 
+    companion object {
+        val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+    }
+
     init {
         songs = getAllSongs()
     }
@@ -17,7 +21,7 @@ class SongRepository (private val application: Application){
 
     fun getAllSongs(): MutableList<Song>{
         val loadedSongs: MutableList<Song> = mutableListOf()
-        val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+
         //val uri: Uri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI
 
         // IS_MUSIC : Non-zero if the audio file is music

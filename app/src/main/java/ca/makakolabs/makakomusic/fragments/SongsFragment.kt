@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import ca.makakolabs.makakomusic.R
 import ca.makakolabs.makakomusic.model.Song
@@ -21,12 +22,16 @@ import ca.makakolabs.makakomusic.viewholders.SongItem
 import ca.makakolabs.makakomusic.viewmodels.SongsViewModel
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder
+import androidx.recyclerview.widget.GridLayoutManager
+
+
+
 
 
 class SongsFragment : Fragment() {
 
     companion object {
-        val TAG = "SongsFragment"
+        val TAG = "Songs"
     }
 
     private val adapter = GroupAdapter<ViewHolder>()
@@ -52,9 +57,16 @@ class SongsFragment : Fragment() {
 
         var viewCL = inflater.inflate(R.layout.songs_fragment_layout, container, false)
         val recycler = (viewCL as ConstraintLayout).findViewById<RecyclerView>(R.id.songs_fragment_recycler_view)
+
+
+        recycler.layoutManager =GridLayoutManager(context, 2)
+
+
         recycler.adapter = adapter
 
-        //Async load the tracks
+        recycler.addItemDecoration(DividerItemDecoration(context,DividerItemDecoration.VERTICAL))
+        recycler.addItemDecoration(DividerItemDecoration(context,DividerItemDecoration.HORIZONTAL))
+/*
         // Here, thisActivity is the current activity
         if (ActivityCompat.checkSelfPermission(
                 context!!,
@@ -72,11 +84,13 @@ class SongsFragment : Fragment() {
             // result of the request.
 
         } else {
-            Log.d(TAG, "loadSongs 1")
-            loadSongs()
-        }
 
-        // Inflate the layout for this fragment
+*/
+            loadSongs()
+/*        }
+
+ */
+
         return viewCL
     }
 
