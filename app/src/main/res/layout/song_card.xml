@@ -5,8 +5,8 @@
                                                    xmlns:tools="http://schemas.android.com/tools"
                                                    android:layout_width="190dp"
                                                    android:layout_height="84dp"
-                                                   android:background="@drawable/black_gradient"
-                                                   android:layout_margin="5dp">
+
+                                                   android:layout_margin="5dp" android:background="#333333">
 
     <TextView
             tools:text="TextView"

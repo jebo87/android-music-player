@@ -1,11 +1,18 @@
 package ca.makakolabs.makakomusic
 
+import android.Manifest
+import android.annotation.TargetApi
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.viewpager.widget.ViewPager
 import ca.makakolabs.makakomusic.adapters.MusicPagerAdapter
@@ -16,13 +23,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import ca.makakolabs.makakomusic.helpers.ZoomOutTransformation
+import com.google.android.material.tabs.TabLayout
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     val fragmentManager = supportFragmentManager
 
     private lateinit var musicPageAdapter: MusicPagerAdapter
-    private lateinit var viewPager:ViewPager
+    private lateinit var viewPager: ViewPager
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,9 +49,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
+
+
         nav_view.setNavigationItemSelectedListener(this)
 
+        // Here, thisActivity is the current activity
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
 
+
+            // No explanation needed; request the permission
+            if (Build.VERSION.SDK_INT > 23) {
+                requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 2)
+            }else{
+
+                TODO("Do this for SDK < 23")
+            }
+
+
+            // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+            // app-defined int constant. The callback method gets the
+            // result of the request.
+
+        } else {
+
+
+            loadFragments()
+        }
+
+
+    }
+    private fun loadFragments(){
         //viewpager
         musicPageAdapter = MusicPagerAdapter(supportFragmentManager)
         viewPager = content_main_view_pager
@@ -51,11 +90,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         viewPager.adapter = musicPageAdapter
 
         val zoomOutTransformation = ZoomOutTransformation()
-        viewPager.setPageTransformer(true,zoomOutTransformation);
+        viewPager.setPageTransformer(true, zoomOutTransformation)
+
+        val tabLayout = this.findViewById<TabLayout>(R.id.content_main_tab_layout)
 
 
+        tabLayout.setupWithViewPager(viewPager)
 
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>, grantResults: IntArray
+    ) {
+        when (requestCode) {
+            2 -> {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay!
 
+                    loadFragments()
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return
+            }
+        }// other 'case' lines to check for other
+        // permissions this app might request.
     }
 
     override fun onBackPressed() {
@@ -90,7 +151,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 //                val fragmentTransaction = fragmentManager.beginTransaction()
 //                fragmentTransaction.replace(R.id.content_main,fragment)
 //                fragmentTransaction.commit()
-
 
 
             }

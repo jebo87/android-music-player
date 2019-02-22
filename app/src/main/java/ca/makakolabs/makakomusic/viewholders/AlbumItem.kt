@@ -30,8 +30,8 @@ class AlbumItem(private val album:Album) : Item<ViewHolder>(){
                 .load(uri)
                 .resize(126, 126)
                 .centerCrop()
-                .placeholder(R.mipmap.ic_launcher_round)
-                .error(R.mipmap.ic_launcher_round)
+                .placeholder(R.drawable.ic_empty_album)
+                .error(R.drawable.ic_empty_album)
                 .transform(CircleTransform())
                 .into(viewHolder.itemView.album_card_art)
         }
@@ -59,11 +59,45 @@ class AlbumItem(private val album:Album) : Item<ViewHolder>(){
             val canvas = Canvas(bitmap)
             val paint = Paint()
             val shader = BitmapShader(squaredBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-            paint.setShader(shader)
-            paint.setAntiAlias(true)
+            paint.shader = shader
+            paint.isAntiAlias=true
+
 
             val r = size / 2f
             canvas.drawCircle(r, r, r, paint)
+
+
+
+            val paint2 = Paint()
+            paint2.style = Paint.Style.STROKE
+            paint2.strokeWidth = 2F
+            paint2.isAntiAlias=true
+            paint2.color =Color.rgb(100,100,100)
+
+
+
+            canvas.drawCircle(r, r, r-paint2.strokeWidth/2, paint2)
+
+            val paint3 =Paint()
+            paint3.style = Paint.Style.FILL
+            paint3.isAntiAlias=true
+            paint3.color =Color.rgb(41,41,41)
+            canvas.drawCircle(r, r, r*0.20f, paint3)
+
+            val paint4 =Paint()
+            paint4.style = Paint.Style.STROKE
+            paint4.strokeWidth = 2F
+            paint4.isAntiAlias=true
+            paint4.color =Color.rgb(100,100,100)
+            canvas.drawCircle(r, r, r*0.20f-paint4.strokeWidth/2, paint4)
+
+            val paint5 =Paint()
+            paint5.style = Paint.Style.FILL
+            paint5.isAntiAlias=true
+            paint5.color =Color.argb(60,40,40,40)
+            canvas.drawCircle(r, r, r*0.30f, paint5)
+
+
 
             squaredBitmap.recycle()
             return bitmap

@@ -94,27 +94,7 @@ class SongsFragment : Fragment() {
         return viewCL
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
-    ) {
-        when (requestCode) {
-            2 -> {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    Log.d(TAG, "loadSongs 2")
-                    loadSongs()
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return
-            }
-        }// other 'case' lines to check for other
-        // permissions this app might request.
-    }
+
 
 
     private fun loadSongs() {

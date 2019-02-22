@@ -17,6 +17,10 @@ class MusicPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm){
     val sections = arrayOf("Songs","Albums")
     private  val ARG_OBJECT = "object"
 
+    override fun getPageTitle(position: Int): CharSequence? {
+        return sections[position]
+    }
+
 
     override fun getCount(): Int {
        return sections.size
@@ -24,8 +28,8 @@ class MusicPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm){
     override fun getItem(i: Int): Fragment {
 
         when (i) {
-            0 -> return AlbumsFragment()
-            else -> return SongsFragment()
+            0 -> return SongsFragment()
+            else -> return AlbumsFragment()
         }
 
     }

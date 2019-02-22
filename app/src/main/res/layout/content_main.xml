@@ -11,5 +11,30 @@
 
     <androidx.viewpager.widget.ViewPager
             android:layout_width="match_parent"
-            android:layout_height="match_parent" android:id="@+id/content_main_view_pager"/>
+            android:layout_height="match_parent" android:id="@+id/content_main_view_pager"
+            android:background="@drawable/black_gradient">
+
+        <com.google.android.material.tabs.TabLayout
+                android:id="@+id/content_main_tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top" app:tabMode="scrollable" app:tabGravity="fill"
+                app:tabTextAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:tabTextColor="#CECECE">
+
+            <com.google.android.material.tabs.TabItem
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/tab_title" android:foreground="@android:color/background_light"/>
+
+            <com.google.android.material.tabs.TabItem
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/tab_title"/>
+
+        </com.google.android.material.tabs.TabLayout>
+
+
+
+    </androidx.viewpager.widget.ViewPager>
 </androidx.constraintlayout.widget.ConstraintLayout>
