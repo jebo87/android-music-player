@@ -1,6 +1,8 @@
 package ca.makakolabs.makakomusic.viewholders
 
 import android.net.Uri
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import ca.makakolabs.makakomusic.R
 import ca.makakolabs.makakomusic.model.Song
 import com.xwray.groupie.Item
@@ -22,7 +24,7 @@ class SongItem(private val song: Song) : Item<ViewHolder>() {
 //    var albumArtUri: Uri = Uri.parse("content://media/external/audio/albumart")
     override fun bind(holder: ViewHolder, position: Int) {
         holder.itemView.song_card_title.text = song.title
-        holder.itemView.song_card_duration.text = song.album
+        holder.itemView.song_card_duration.text = song.duration.toString()
         holder.itemView.song_card_artist.text = song.artist
 
         //In case we want to load an album art

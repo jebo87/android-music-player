@@ -1,5 +1,6 @@
 package ca.makakolabs.makakomusic.viewholders
 
+import android.content.ContentUris.withAppendedId
 import android.graphics.*
 import android.net.Uri
 import ca.makakolabs.makakomusic.R
@@ -25,9 +26,8 @@ class AlbumItem(private val album:Album) : Item<ViewHolder>(){
 
 ////        In case we want to load an album art
         if (album.id != null) {
-            var uri = Uri.withAppendedPath(albumArtUri,album.id)
             Picasso.get()
-                .load(uri)
+                .load(album.description.iconUri)
                 .resize(126, 126)
                 .centerCrop()
                 .placeholder(R.drawable.ic_empty_album)

@@ -2,25 +2,26 @@ package ca.makakolabs.makakomusic.repositories
 
 import android.app.Application
 import android.database.Cursor
-import android.net.Uri
 import android.provider.MediaStore
-import android.util.Log
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.MediaBrowserCompat
 import ca.makakolabs.makakomusic.model.Song
 
-class SongRepository (private val application: Application){
-    private val songs: MutableList<Song>
 
-    companion object {
-        val uri: Uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-    }
+class SongRepository (private val application: Application) : MusicRepository{
+
+
+    private val songs: MutableList<MediaBrowserCompat.MediaItem>
+
 
     init {
-        songs = getAllSongs()
+        songs = getMediaFromCursor()
     }
 
 
-    fun getAllSongs(): MutableList<Song>{
-        val loadedSongs: MutableList<Song> = mutableListOf()
+    override fun getMediaFromCursor(): MutableList<MediaBrowserCompat.MediaItem>{
+
+        var loadedSongs = mutableListOf<MediaBrowserCompat.MediaItem>()
 
         //val uri: Uri = MediaStore.Audio.Media.INTERNAL_CONTENT_URI
 
@@ -43,7 +44,7 @@ class SongRepository (private val application: Application){
 
         // Query the external storage for music files
         val cursor: Cursor? = application.contentResolver?.query(
-            uri, // Uri
+            MusicRepository.uri, // Uri
             projection, // Projection
             selection, // Selection
             null, // Selection arguments
@@ -51,27 +52,47 @@ class SongRepository (private val application: Application){
         )
 
         if (cursor != null && cursor.moveToFirst()) {
-//            val title:Int = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
-            val id: Int = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val album: Int = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
-            val artist: Int = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+           val idColumn:Int = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
+            val titleColumn: Int = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+            val albumColumn: Int = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
+            val artistColumn: Int = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+            val durationColumn : Int = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
 
 
-            var albumId :Int = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
+            var albumIdColumn :Int = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
 
 
 
             // Now loop through the music files
             do {
-//                val audioId:Long = cursor.getLong(id)
-                val audioTitle: String = cursor.getString(id)
-                val audioArtist: String = cursor.getString(artist)
-                val audioAlbum: String = cursor.getString(album)
-                val audioArt: Long = cursor.getLong(albumId)
-                Log.d("SongsFragment title", audioTitle)
+                val audioId:String = cursor.getString(idColumn)
+                val audioTitle: String = cursor.getString(titleColumn)
+                val audioArtist: String = cursor.getString(artistColumn)
+                val audioAlbum: String = cursor.getString(albumColumn)
+                val audioAlbumId: Long = cursor.getLong(albumIdColumn)
+                val audioDuration: Long = cursor.getLong(durationColumn)
+
 
                 // Add the current music to the list
-                loadedSongs.add(Song(audioTitle,audioArtist,audioAlbum,0,"",audioArt))
+
+
+//                var mMediaMetadataCompat =MediaMetadataCompat.Builder()
+//                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, audioId)
+//                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, audioAlbum)
+//                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, audioArtist)
+//                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationColumn.toLong())
+//                    .putString(MediaMetadataCompat.METADATA_KEY_GENRE, "")
+//                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, "")
+//                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, audioTitle)
+//                    .build()
+
+                var song = Song(audioId,audioTitle,audioArtist,audioAlbumId,audioAlbum,audioDuration)
+
+                loadedSongs.add(song)
+
+
+
+
             } while (cursor.moveToNext())
 
             cursor.close()
@@ -79,6 +100,15 @@ class SongRepository (private val application: Application){
 
         return loadedSongs
 
+
+    }
+
+     override fun createMediaItem(metadata: MediaMetadataCompat): MediaBrowserCompat.MediaItem {
+
+        return MediaBrowserCompat.MediaItem(
+            metadata.description,
+            MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
+        )
 
     }
 }
