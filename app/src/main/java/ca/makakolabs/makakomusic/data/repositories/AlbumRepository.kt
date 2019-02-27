@@ -1,13 +1,11 @@
-package ca.makakolabs.makakomusic.repositories
+package ca.makakolabs.makakomusic.data.repositories
 
-import android.R
 import android.app.Application
 import android.database.Cursor
 import android.provider.MediaStore
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
-import android.util.Log
-import ca.makakolabs.makakomusic.model.Album
+import ca.makakolabs.makakomusic.data.model.Album
 
 class AlbumRepository(private val application: Application) : MusicRepository{
     private var albums: MutableList<MediaBrowserCompat.MediaItem> = mutableListOf()

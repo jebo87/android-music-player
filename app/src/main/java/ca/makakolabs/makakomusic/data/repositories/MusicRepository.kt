@@ -1,4 +1,4 @@
-package ca.makakolabs.makakomusic.repositories
+package ca.makakolabs.makakomusic.data.repositories
 
 import android.net.Uri
 import android.provider.MediaStore

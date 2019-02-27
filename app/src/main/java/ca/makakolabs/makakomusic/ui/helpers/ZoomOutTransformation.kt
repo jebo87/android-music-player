@@ -1,4 +1,4 @@
-package ca.makakolabs.makakomusic.helpers
+package ca.makakolabs.makakomusic.ui.helpers
 
 import android.view.View
 import androidx.viewpager.widget.ViewPager

@@ -1,11 +1,11 @@
-package ca.makakolabs.makakomusic.repositories
+package ca.makakolabs.makakomusic.data.repositories
 
 import android.app.Application
 import android.database.Cursor
 import android.provider.MediaStore
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaBrowserCompat
-import ca.makakolabs.makakomusic.model.Song
+import ca.makakolabs.makakomusic.data.model.Song
 
 
 class SongRepository (private val application: Application) : MusicRepository{

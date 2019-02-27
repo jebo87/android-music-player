@@ -1,4 +1,4 @@
-package ca.makakolabs.makakomusic.fragments
+package ca.makakolabs.makakomusic.ui.fragments
 
 import androidx.fragment.app.Fragment
 

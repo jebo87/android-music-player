@@ -1,11 +1,9 @@
-package ca.makakolabs.makakomusic.viewmodels
+package ca.makakolabs.makakomusic.ui.viewmodels
 
 import android.app.Application
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaMetadataCompat
 import androidx.lifecycle.AndroidViewModel
-import ca.makakolabs.makakomusic.model.Album
-import ca.makakolabs.makakomusic.repositories.AlbumRepository
+import ca.makakolabs.makakomusic.data.repositories.AlbumRepository
 
 class AlbumViewModel (application: Application): AndroidViewModel(application){
     private val albumRepository: AlbumRepository

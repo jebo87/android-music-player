@@ -1,11 +1,13 @@
-package ca.makakolabs.makakomusic.model
+package ca.makakolabs.makakomusic.data.model
 
 import android.content.ContentUris.withAppendedId
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 data class Album(
     var id: Long,
     var title: String,

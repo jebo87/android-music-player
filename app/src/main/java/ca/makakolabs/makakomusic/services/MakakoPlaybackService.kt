@@ -5,9 +5,10 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.media.MediaBrowserServiceCompat
-import ca.makakolabs.makakomusic.repositories.AlbumRepository
-import ca.makakolabs.makakomusic.repositories.MusicRepository
-import ca.makakolabs.makakomusic.repositories.SongRepository
+import ca.makakolabs.makakomusic.data.model.Song
+import ca.makakolabs.makakomusic.data.repositories.AlbumRepository
+import ca.makakolabs.makakomusic.data.repositories.MusicRepository
+import ca.makakolabs.makakomusic.data.repositories.SongRepository
 
 
 
@@ -72,18 +73,21 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
 
         // Assume for example that the music catalog is already loaded/cached.
 
-        val mediaItems = mutableListOf<MediaItem>()
-
+        var mediaItems = mutableListOf<MediaItem>()
         // Check root menu and return the items depending on the parentMediaId requested:
         when(parentMediaId) {
             SONGS_MEDIA_ROOT_ID -> {
                 repository = SongRepository(application)
 
                 //Get the songs from the repository and load them into the array
-                var metaDataItems = repository.getMediaFromCursor()
-                for (item in metaDataItems) {
-                    mediaItems.add(item)
-                }
+
+
+
+                result.sendResult(repository.getMediaFromCursor())
+
+//                for (item in items) {
+//                    mediaItems.add(item as Song)
+//                }
 
 
             }
@@ -93,14 +97,15 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
 
 
                 var metaDataItems = repository.getMediaFromCursor()
+                mediaItems.clear()
                 for (item in metaDataItems) {
                     mediaItems.add(item)
                 }
+                result.sendResult(repository.getMediaFromCursor())
             }
         }
 
 
-        result.sendResult(mediaItems)
     }
 
 

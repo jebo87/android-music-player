@@ -1,20 +1,21 @@
-package ca.makakolabs.makakomusic.adapters
+package ca.makakolabs.makakomusic.ui.adapters
 
-import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
+import android.support.v4.media.MediaBrowserCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import ca.makakolabs.makakomusic.fragments.AlbumsFragment
-import ca.makakolabs.makakomusic.fragments.SongsFragment
-import androidx.viewpager.widget.ViewPager
-import ca.makakolabs.makakomusic.fragments.MediaBrowserFragment
+import ca.makakolabs.makakomusic.ui.fragments.AlbumsFragment
+import ca.makakolabs.makakomusic.ui.fragments.MediaBrowserFragment
+import ca.makakolabs.makakomusic.ui.activities.MainActivity
+import ca.makakolabs.makakomusic.ui.fragments.SongsFragment
 
 
 class MusicPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm){
 
     val sections = arrayOf("Songs","Albums")
+
+    lateinit  var mediaBrowser: MediaBrowserCompat
+
 
     private  val ARG_OBJECT = "object"
 
@@ -31,25 +32,22 @@ class MusicPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm){
         var fragment = MediaBrowserFragment()
 
 
-
-
-
-
-
-
         when (i) {
             MediaBrowserFragment.SongsFrag -> {
+
+
                 fragment = SongsFragment()
             }
             MediaBrowserFragment.AlbumFrag -> {
                 fragment = AlbumsFragment()
-
             }
         }
 
         return fragment
 
     }
+
+
 
 
 

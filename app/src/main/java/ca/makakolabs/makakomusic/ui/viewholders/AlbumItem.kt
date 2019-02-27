@@ -1,10 +1,8 @@
-package ca.makakolabs.makakomusic.viewholders
+package ca.makakolabs.makakomusic.ui.viewholders
 
-import android.content.ContentUris.withAppendedId
 import android.graphics.*
-import android.net.Uri
 import ca.makakolabs.makakomusic.R
-import ca.makakolabs.makakomusic.model.Album
+import ca.makakolabs.makakomusic.data.model.Album
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
@@ -16,15 +14,12 @@ import kotlinx.android.synthetic.main.album_card.view.*
 class AlbumItem(private val album:Album) : Item<ViewHolder>(){
 
 
-
-    private val albumArtUri: Uri = Uri.parse("content://media/external/audio/albumart")
-
     override fun getLayout() = R.layout.album_card
 
 
     override fun bind(viewHolder: ViewHolder, position: Int) {
 
-////        In case we want to load an album art
+        //Code to load the album art
         if (album.id != null) {
             Picasso.get()
                 .load(album.description.iconUri)
@@ -42,6 +37,8 @@ class AlbumItem(private val album:Album) : Item<ViewHolder>(){
 
 
     }
+
+//    Class to paint the album art with masks and strokes.
     inner class CircleTransform : Transformation {
         override fun transform(source: Bitmap): Bitmap {
             val size = Math.min(source.width, source.height)
