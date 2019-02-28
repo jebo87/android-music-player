@@ -12,12 +12,7 @@ import ca.makakolabs.makakomusic.ui.fragments.SongsFragment
 
 class MusicPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm){
 
-    val sections = arrayOf("Songs","Albums")
-
-    lateinit  var mediaBrowser: MediaBrowserCompat
-
-
-    private  val ARG_OBJECT = "object"
+    private val sections = arrayOf("Songs","Albums")
 
     override fun getPageTitle(position: Int): CharSequence? {
         return sections[position]
@@ -30,19 +25,14 @@ class MusicPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm){
     override fun getItem(i: Int): Fragment {
 
         var fragment = MediaBrowserFragment()
-
-
         when (i) {
             MediaBrowserFragment.SongsFrag -> {
-
-
                 fragment = SongsFragment()
             }
             MediaBrowserFragment.AlbumFrag -> {
                 fragment = AlbumsFragment()
             }
         }
-
         return fragment
 
     }

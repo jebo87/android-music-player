@@ -31,10 +31,7 @@ class AlbumsFragment : MediaBrowserFragment() {
 
     private lateinit var albumViewModel: AlbumViewModel
 
-    private lateinit var mediaBrowser: MediaBrowserCompat
-
-    lateinit  var myActivity: MediaBrowserProvider
-
+    lateinit var myActivity: MediaBrowserProvider
 
 
     override fun onCreateView(
@@ -46,26 +43,13 @@ class AlbumsFragment : MediaBrowserFragment() {
         //initialize view model
         albumViewModel = ViewModelProviders.of(this).get(AlbumViewModel::class.java)
 
-//        mediaBrowser = MediaBrowserCompat(
-//            context, ComponentName(context, MakakoPlaybackService::class.java),
-//            connectionCallbacks,
-//            null
-//        )
-
-
-        var constraintLayout = inflater.inflate(R.layout.albums_fragment_layout,container,false)
+        var constraintLayout = inflater.inflate(R.layout.albums_fragment_layout, container, false)
         var recycler = (constraintLayout as ConstraintLayout).findViewById<RecyclerView>(R.id.albums_fragment_recycler)
 
-        recycler.apply{
-
-            layoutManager = GridLayoutManager(context,2)
+        recycler.apply {
+            layoutManager = GridLayoutManager(context, 2)
             adapter = mAdapter
-
         }
-
-
-
-
 
         return constraintLayout
 
@@ -78,7 +62,7 @@ class AlbumsFragment : MediaBrowserFragment() {
 
     override fun onStart() {
         super.onStart()
-        if(myActivity.getMediaBrowserCompat().isConnected)
+        if (myActivity.getMediaBrowserCompat().isConnected)
             onConnected()
 
 
@@ -89,12 +73,16 @@ class AlbumsFragment : MediaBrowserFragment() {
             return
         }
 
+        //subscribe to the albums root
+        //unsubsribe and subscribe again, this is supposed to be an android bug that will be corrected in the future
+        //once this is corrected, only the subscribe line will be necessary
+
         var root = MakakoPlaybackService.ALBUMS_MEDIA_ROOT_ID
         myActivity.getMediaBrowserCompat().unsubscribe(root)
-        myActivity.getMediaBrowserCompat().subscribe(root,subscriptionCallback)
+        myActivity.getMediaBrowserCompat().subscribe(root, subscriptionCallback)
     }
 
-    private var subscriptionCallback = object: MediaBrowserCompat.SubscriptionCallback(){
+    private var subscriptionCallback = object : MediaBrowserCompat.SubscriptionCallback() {
         override fun onChildrenLoaded(
             parentId: String,
             albums: MutableList<MediaBrowserCompat.MediaItem>
@@ -109,61 +97,8 @@ class AlbumsFragment : MediaBrowserFragment() {
                 mAdapter.add(AlbumItem(album as Album))
             }
             mAdapter.notifyDataSetChanged()
-
-
-
         }
 
     }
-
-
-//    private val connectionCallbacks = object : MediaBrowserCompat.ConnectionCallback() {
-//        override fun onConnected() {
-//
-//            var root = MakakoPlaybackService.ALBUMS_MEDIA_ROOT_ID
-//            mediaBrowser.subscribe(root,
-//                object : MediaBrowserCompat.SubscriptionCallback() {
-//                    override fun onChildrenLoaded(
-//                        parentId: String,
-//                        albums: List<MediaBrowserCompat.MediaItem>
-//                    ) {
-//                        if (albums == null || albums.isEmpty()) {
-//                            return
-//                        }
-//
-//
-//                        mAdapter.clear()
-//
-//
-//                        for (album in albums) {
-//                            mAdapter.add(AlbumItem(album as Album))
-//                        }
-//
-//                        mAdapter.notifyDataSetChanged()
-//                        // Play the first item?
-//                        // Probably should check firstItem.isPlayable()
-////                        MediaControllerCompat.getMediaController(activity!!.parent)
-////                            .transportControls
-////                            .playFromMediaId(firstItem.mediaId, null)
-//                    }
-//                })
-//
-//            // Get the token for the MediaSession
-//            mediaBrowser.sessionToken.also { token ->
-//
-//                // Create a MediaControllerCompat
-//                val mediaController = MediaControllerCompat(
-//                    activity, // Context
-//                    token
-//                )
-//
-//                // Save the controller
-//                //MediaControllerCompat.setMediaController(context, mediaController)
-//
-//            }
-//        }
-//
-//
-//    }
 
 }

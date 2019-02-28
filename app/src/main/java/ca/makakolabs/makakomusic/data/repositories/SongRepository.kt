@@ -40,6 +40,7 @@ class SongRepository (private val application: Application) : MusicRepository{
             MediaStore.Audio.Media.ARTIST,
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.ALBUM_ID
+
         )
 
         // Query the external storage for music files
@@ -71,6 +72,7 @@ class SongRepository (private val application: Application) : MusicRepository{
                 val audioAlbum: String = cursor.getString(albumColumn)
                 val audioAlbumId: Long = cursor.getLong(albumIdColumn)
                 val audioDuration: Long = cursor.getLong(durationColumn)
+
 
 
                 // Add the current music to the list

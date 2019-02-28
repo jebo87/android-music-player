@@ -1,25 +1,27 @@
 package ca.makakolabs.makakomusic.ui.activities
 
 import android.Manifest
+import android.app.Activity
 import android.content.ComponentName
-import android.content.Context
+import android.content.ContentUris
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.*
 
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import ca.makakolabs.makakomusic.R
+import ca.makakolabs.makakomusic.data.model.Song
 import ca.makakolabs.makakomusic.ui.adapters.MusicPagerAdapter
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -27,18 +29,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import ca.makakolabs.makakomusic.ui.helpers.ZoomOutTransformation
-import ca.makakolabs.makakomusic.data.model.Song
 import ca.makakolabs.makakomusic.services.MakakoPlaybackService
 import ca.makakolabs.makakomusic.ui.fragments.AlbumsFragment
-import ca.makakolabs.makakomusic.ui.fragments.MediaBrowserFragment
 import ca.makakolabs.makakomusic.ui.fragments.SongsFragment
-import ca.makakolabs.makakomusic.ui.viewholders.SongItem
 import com.google.android.material.tabs.TabLayout
-import com.xwray.groupie.GroupAdapter
-import com.xwray.groupie.ViewHolder
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MediaBrowserProvider {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MediaActionListener{
+
 
     val fragmentManager = supportFragmentManager
 
@@ -111,21 +109,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //viewpager
         musicPageAdapter = MusicPagerAdapter(supportFragmentManager)
         viewPager = content_main_view_pager
-
         viewPager.adapter = musicPageAdapter
 
+        //load the custom transformation when the user swipes between the different views
         val zoomOutTransformation = ZoomOutTransformation()
         viewPager.setPageTransformer(true, zoomOutTransformation)
 
         val tabLayout = this.findViewById<TabLayout>(R.id.content_main_tab_layout)
-
-
         tabLayout.setupWithViewPager(viewPager)
 
+        //create a MediaBrowser client to connect to our MediaBrowser service
         mediaBrowser = MediaBrowserCompat(
             this,
             ComponentName(this, MakakoPlaybackService::class.java),
-            myCallback,
+            mediaBrowserConnectionCallback,
             null // optional Bundle
         )
 
@@ -227,7 +224,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
        return mediaBrowser
     }
 
-    private val myCallback = object : MediaBrowserCompat.ConnectionCallback() {
+    override fun getMediaControllerCompat():MediaControllerCompat{
+        return MediaControllerCompat.getMediaController(this)
+    }
+
+    override fun onMediaItemSelected(song: Song) {
+        var controller = MediaControllerCompat.getMediaController(this@MainActivity)
+
+        controller.transportControls
+            .playFromMediaId(song.id,Bundle().apply {
+                this.putParcelable("song",song)
+            })
+
+
+
+
+
+
+    }
+
+    fun onPlaybackStart(){
+
+    }
+
+    private var controllerCallback = object : MediaControllerCompat.Callback() {
+
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            Log.d(TAG, "onMetadataChanged" + metadata!!.description.title)
+        }
+
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            Log.d(TAG, "State changed" + state!!.state)
+        }
+    }
+
+    private val mediaBrowserConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnectionFailed() {
             Log.d(TAG, "Connection Aborted!")
         }
@@ -235,6 +266,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             Log.d(TAG, "Connected to MediaBrowser")
             Log.d(TAG, "Loading songs...")
+            //fragment in position 0 is our songs fragment
             var songsFragment = (fragmentManager.fragments[0] as SongsFragment)
 
             songsFragment.onConnected()
@@ -245,32 +277,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             albumsFragment.onConnected()
 
-
-
-
-
-            var root = MakakoPlaybackService.SONGS_MEDIA_ROOT_ID
-//            mediaBrowser.subscribe(root,
-//                object : MediaBrowserCompat.SubscriptionCallback() {
-//                    override fun onChildrenLoaded(
-//                        parentId: String,
-//                        songs: List<MediaBrowserCompat.MediaItem>
-//                    ) {
-//                        if (songs == null || songs.isEmpty()) {
-//                            return
-//                        }
-//
-//                        var other = songs as MutableList<Song>
-//
-//
-//
-//
-//
-//                    }
-//                })
-
             // Get the token for the MediaSession
-            mediaBrowser!!.sessionToken.also { token ->
+            mediaBrowser.sessionToken.also { token ->
 
                 // Create a MediaControllerCompat
                 val mediaController = MediaControllerCompat(
@@ -280,6 +288,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 // Save the controller
                 MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
+
+                // Display the initial state
+                val metadata = mediaController.metadata
+                val pbState = mediaController.playbackState
+
+                // Register a Callback to stay in sync
+                mediaController.registerCallback(controllerCallback)
 
             }
         }

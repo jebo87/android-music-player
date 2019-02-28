@@ -1,18 +1,22 @@
 package ca.makakolabs.makakomusic.ui.fragments
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.MediaControllerCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ca.makakolabs.makakomusic.R
 import ca.makakolabs.makakomusic.data.model.Song
 import ca.makakolabs.makakomusic.services.MakakoPlaybackService
+import ca.makakolabs.makakomusic.ui.activities.MediaActionListener
 import ca.makakolabs.makakomusic.ui.activities.MediaBrowserProvider
 import ca.makakolabs.makakomusic.ui.viewholders.SongItem
 import com.xwray.groupie.GroupAdapter
@@ -27,7 +31,7 @@ class SongsFragment : MediaBrowserFragment() {
 
     lateinit var recycler: RecyclerView
     lateinit var viewCL: View
-    lateinit  var myActivity: MediaBrowserProvider
+    lateinit  var myActivity: MediaActionListener
 
 
     override fun onCreateView(
@@ -41,9 +45,17 @@ class SongsFragment : MediaBrowserFragment() {
 
         recycler.apply {
             layoutManager = GridLayoutManager(activity, 2)
+            adapter = mAdapter.apply {
+                setOnItemClickListener { item, view ->
+                    var songToPlay = (item as SongItem).getSong()
+                    myActivity.onMediaItemSelected(songToPlay)
+
+
+                }
+            }
+
         }
 
-        recycler.adapter= mAdapter
         return viewCL
     }
 
@@ -52,14 +64,13 @@ class SongsFragment : MediaBrowserFragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        myActivity = (context as MediaBrowserProvider)
+        myActivity = (context as MediaActionListener)
 
 
     }
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "Mediabroswer is connected="+myActivity.getMediaBrowserCompat().isConnected)
         if(myActivity.getMediaBrowserCompat().isConnected)
             onConnected()
 
@@ -69,10 +80,13 @@ class SongsFragment : MediaBrowserFragment() {
         if (isDetached) {
             return
         }
-
+        //subscribe to the songs root
+        //unsubsribe and subscribe again, this is supposed to be an android bug that will be corrected in the future
+        //once this is corrected, only the subscribe line will be necessary
         var root = MakakoPlaybackService.SONGS_MEDIA_ROOT_ID
         myActivity.getMediaBrowserCompat().unsubscribe(root)
         myActivity.getMediaBrowserCompat().subscribe(root,subscriptionCallback)
+
     }
 
     private var subscriptionCallback = object: MediaBrowserCompat.SubscriptionCallback(){
@@ -88,9 +102,10 @@ class SongsFragment : MediaBrowserFragment() {
             mAdapter.clear()
             for (song in songs) {
                 mAdapter.add(SongItem(song as Song))
+                MediaControllerCompat.getMediaController(myActivity as Activity).addQueueItem(song.description)
             }
             mAdapter.notifyDataSetChanged()
-
+            MediaControllerCompat.getMediaController(myActivity as Activity).transportControls.prepare()
 
 
         }

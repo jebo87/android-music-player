@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -29,4 +30,17 @@ data class Song(
             this.putLong("duration",duration)
         })
         .build(), FLAG_PLAYABLE
-), Parcelable
+), Parcelable{
+
+    fun toMetaData(): MediaMetadataCompat{
+
+        return MediaMetadataCompat.Builder().apply {
+            putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID,id)
+            putString(MediaMetadataCompat.METADATA_KEY_TITLE,title)
+            putString(MediaMetadataCompat.METADATA_KEY_ARTIST,artist)
+            putString(MediaMetadataCompat.METADATA_KEY_ALBUM,album)
+            putString(MediaMetadataCompat.METADATA_KEY_ART_URI,"content://media/external/audio/albumart/$albumId")
+
+        }.build()
+    }
+}
