@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.ComponentName
 import android.content.ContentUris
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -105,6 +106,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     private fun loadFragments(){
 
+        //create a MediaBrowser client to connect to our MediaBrowser service
+        mediaBrowser = MediaBrowserCompat(
+            this,
+            ComponentName(this, MakakoPlaybackService::class.java),
+            mediaBrowserConnectionCallback,
+            null // optional Bundle
+        )
+
+
 
         //viewpager
         musicPageAdapter = MusicPagerAdapter(supportFragmentManager)
@@ -118,13 +128,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val tabLayout = this.findViewById<TabLayout>(R.id.content_main_tab_layout)
         tabLayout.setupWithViewPager(viewPager)
 
-        //create a MediaBrowser client to connect to our MediaBrowser service
-        mediaBrowser = MediaBrowserCompat(
-            this,
-            ComponentName(this, MakakoPlaybackService::class.java),
-            mediaBrowserConnectionCallback,
-            null // optional Bundle
-        )
 
 
 
@@ -233,8 +236,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         controller.transportControls
             .playFromMediaId(song.id,Bundle().apply {
-                this.putParcelable("song",song)
+                this.putParcelable("com.makakolabs.makakomusic.song",song)
             })
+
+
+        var playbackIntent = Intent(this,PlaybackActivity::class.java)
+        playbackIntent.putExtra("song",song)
+        startActivity(playbackIntent)
 
 
 
