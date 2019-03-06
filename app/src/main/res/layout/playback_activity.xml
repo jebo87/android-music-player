@@ -30,7 +30,7 @@
             app:layout_constraintBottom_toTopOf="@+id/playback_artist" app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" app:layout_constraintHorizontal_bias="0.5" android:textSize="36sp"
-            android:layout_marginTop="16dp" android:layout_marginBottom="8dp"/>
+            android:layout_marginTop="16dp" android:layout_marginBottom="8dp" style="@style/AudioFileInfoOverlayText"/>
     <TextView
             android:text="Bob Marley and the wailers"
             android:layout_width="wrap_content"
@@ -39,7 +39,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" android:textSize="24sp"
             android:layout_marginBottom="8dp" app:layout_constraintTop_toBottomOf="@+id/playback_title"
-            app:layout_constraintHorizontal_bias="0.5"/>
+            app:layout_constraintHorizontal_bias="0.5" style="@style/AudioFileInfoOverlayText"/>
     <TextView
             android:text="Hits of 1998"
             android:layout_width="wrap_content"
@@ -47,7 +47,7 @@
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintEnd_toEndOf="parent" android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@+id/playback_artist"
-            app:layout_constraintBottom_toTopOf="@+id/playback_playtime"/>
+            app:layout_constraintBottom_toTopOf="@+id/playback_playtime" style="@style/AudioFileInfoOverlayText"/>
     <TextView
             android:text="3:34"
             android:layout_width="wrap_content"
@@ -65,12 +65,22 @@
             android:id="@+id/frameLayout"
             app:layout_constraintTop_toBottomOf="@+id/playback_playtime"
             app:layout_constraintVertical_bias="0.050000012">
-        <ca.makakolabs.makakomusic.ui.customviews.CircularSlider
+
+        <com.github.rongi.rotate_layout.layout.RotateLayout
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="matrix"
-                android:id="@+id/playback_imageview_bg_slider" android:layout_gravity="center"
-                android:background="@drawable/ic_album_art_bg"/>
+                app:angle="90" android:layout_gravity="center"
+                android:id="@+id/playback_rotate_layout"
+                style="@style/AudioFileInfoOverlayText">    <!-- Specify rotate angle here -->
+
+            <ca.makakolabs.makakomusic.ui.customviews.CircularSlider
+                    android:layout_height="350dp"
+                    android:scaleType="matrix"
+                    android:id="@+id/playback_imageview_bg_slider" android:layout_gravity="center"
+                    android:background="@drawable/ic_album_art_bg" android:layout_width="350dp"/>
+        </com.github.rongi.rotate_layout.layout.RotateLayout>
+
         <ImageView
                 android:layout_width="250dp"
                 android:layout_height="250dp" app:srcCompat="@drawable/ic_empty_album"

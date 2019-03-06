@@ -234,6 +234,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onMediaItemSelected(song: Song) {
         var controller = MediaControllerCompat.getMediaController(this@MainActivity)
 
+        controller.transportControls.stop()
+
         controller.transportControls
             .playFromMediaId(song.id,Bundle().apply {
                 this.putParcelable("com.makakolabs.makakomusic.song",song)
@@ -241,6 +243,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
         var playbackIntent = Intent(this,PlaybackActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         playbackIntent.putExtra("song",song)
         startActivity(playbackIntent)
 

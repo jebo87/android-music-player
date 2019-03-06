@@ -1,6 +1,7 @@
 package ca.makakolabs.makakomusic.utils
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -92,6 +93,25 @@ class Utils{
             // Decode bitmap with inSampleSize set
             options.inJustDecodeBounds = false
             return BitmapFactory.decodeFile(resId, options)
+        }
+
+        fun decodeSampledBitmapFromResource(
+            res: Resources, resId: Int,
+            reqWidth: Int, reqHeight: Int
+        ): Bitmap {
+
+            // First decode with inJustDecodeBounds=true to check dimensions
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            options.inPreferredConfig = Bitmap.Config.RGB_565
+            BitmapFactory.decodeResource(res, resId, options)
+
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false
+            return BitmapFactory.decodeResource(res, resId, options)
         }
 
         fun calculateInSampleSize(

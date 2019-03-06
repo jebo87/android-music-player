@@ -29,7 +29,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name="ca.makakolabs.makakomusic.ui.activities.PlaybackActivity" />
+        <activity android:name="ca.makakolabs.makakomusic.ui.activities.PlaybackActivity"
+
+                  android:theme="@style/Theme.AppCompat.NoActionBar"
+        />
     </application>
 
 </manifest>

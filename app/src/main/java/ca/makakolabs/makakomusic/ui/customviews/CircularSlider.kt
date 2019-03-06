@@ -30,22 +30,26 @@ class CircularSlider (context: Context, attrs: AttributeSet): ImageView(context,
 
 
     fun rotate(angle: Float) {
-        Log.d(TAG, "Rotating $angle degrees")
 
-        this.apply {
-            scaleType = ImageView.ScaleType.MATRIX
+        scaleType = ImageView.ScaleType.MATRIX
             //theMatrix.postRotate(angle, pivx.toFloat(), pivy.toFloat())
        theMatrix.setRotate(angle, pivx.toFloat(), pivy.toFloat())
-            imageMatrix = theMatrix
+        imageMatrix = theMatrix
 
-        }
+        requestLayout()
+        invalidate()
+
+
+
 
 
     }
 
+
     override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
         val x = motionEvent.x
         val y = motionEvent.y
+
 
         when (motionEvent.action) {
 
@@ -61,7 +65,7 @@ class CircularSlider (context: Context, attrs: AttributeSet): ImageView(context,
 //                    return false
             }
             MotionEvent.ACTION_MOVE -> {
-
+                Log.d(TAG, "Entro a onTouch")
 
                 //The user is dragging the controller, we should move it so it stays on his finger.
                 angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()

@@ -26,10 +26,9 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import android.provider.MediaStore
-
-
-
-
+import android.view.Window
+import android.view.WindowManager
+import java.io.FileNotFoundException
 
 
 class PlaybackActivity : AppCompatActivity() {
@@ -42,7 +41,7 @@ class PlaybackActivity : AppCompatActivity() {
     private var mHandler = Handler()
     private lateinit var mMediaBrowser: MediaBrowserCompat
     private lateinit var song: Song
-    private var percentage=0.0
+    private var percentage = 0.0
 
 
     private val mUpdateProgressTask = Runnable { updateProgress() }
@@ -55,6 +54,9 @@ class PlaybackActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.playback_activity)
 //        song = intent.extras.getParcelable("song") as Song
 
@@ -74,7 +76,9 @@ class PlaybackActivity : AppCompatActivity() {
 
     private fun updateUI(newMetaData: MediaMetadataCompat, pbState: PlaybackStateCompat, bundle: Bundle) {
 
-       song = bundle.getParcelable("com.makakolabs.makakomusic.song") as Song
+        song = bundle.getParcelable("com.makakolabs.makakomusic.song") as Song
+
+        //Load the song info into the different UI elements
         playback_title.text = song.title
         playback_album.text = song.album
         playback_artist.text = song.artist
@@ -91,13 +95,23 @@ class PlaybackActivity : AppCompatActivity() {
         Thread(Runnable {
 
             mHandler.post {
-                val myBitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, song.description.iconUri)
-                val blurredBackground = Utils.blurImage(this@PlaybackActivity,myBitmap, 250, 250)
-                playback_constraint_layout.background=  BitmapDrawable(resources,blurredBackground)
+
+
+                var myBitmap: Bitmap
+                try {
+
+                    //load the blurred background
+                    myBitmap =MediaStore.Images.Media.getBitmap(this.contentResolver, song.description.iconUri)
+                    val blurredBackground = Utils.blurImage(this@PlaybackActivity, myBitmap, 250, 250)
+                    playback_constraint_layout.background = BitmapDrawable(resources, blurredBackground)
+                } catch (e: FileNotFoundException) {
+                    //no album art
+                }
+
+
+
             }
         }).start()
-
-
 
 
     }
@@ -170,10 +184,6 @@ class PlaybackActivity : AppCompatActivity() {
     }
 
 
-    override fun onPause() {
-        super.onPause()
-    }
-
     override fun onStop() {
         super.onStop()
         mMediaBrowser.disconnect()
@@ -191,10 +201,10 @@ class PlaybackActivity : AppCompatActivity() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             Log.d(TAG, "State changed" + state!!.state)
 
-         }
+        }
     }
 
-    private fun updatePlaybackState(stateCompat: PlaybackStateCompat){
+    private fun updatePlaybackState(stateCompat: PlaybackStateCompat) {
         mLastPlaybackState = stateCompat
     }
 
@@ -212,9 +222,12 @@ class PlaybackActivity : AppCompatActivity() {
             val timeDelta = SystemClock.elapsedRealtime() - mLastPlaybackState!!.lastPositionUpdateTime
             currentPosition += (timeDelta.toInt() * mLastPlaybackState!!.playbackSpeed).toLong()
         }
-        playback_playtime.text = Utils.convertToTime(currentPosition) +" / "+Utils.convertToTime(song.duration)
-        percentage = ((currentPosition.toDouble() / song.duration.toDouble()))
-        playback_imageview_bg_slider.rotate((percentage*360).toFloat())
+        playback_playtime.text = Utils.convertToTime(currentPosition) + " / " + Utils.convertToTime(song.duration)
+        percentage = (currentPosition.toDouble() / song.duration.toDouble())
+        //        playback_imageview_bg_slider.rotate((percentage*360).toFloat())
+
+        playback_rotate_layout.angle = -(percentage * 360).toInt()
+        Log.d(TAG, "${(percentage * 360).toInt()}")
     }
 
     private fun scheduleSeekbarUpdate() {

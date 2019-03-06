@@ -37,12 +37,13 @@ class AndroidPlayback(context: Context){
         player.prepare(source)
         player.playWhenReady=true
 
+    }
 
-
-
-
-
-
+    fun stop(){
+        if(!::player.isInitialized)
+           return
+        player.playWhenReady = false
+        player.stop()
 
     }
 

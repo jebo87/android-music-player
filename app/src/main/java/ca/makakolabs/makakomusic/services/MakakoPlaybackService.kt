@@ -85,6 +85,16 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
 
     private val mediaSessionCallback = object : MediaSessionCompat.Callback() {
 
+        override fun onStop() {
+            super.onStop()
+            player.stop()
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder().apply {
+
+                    setState(PlaybackStateCompat.STATE_STOPPED,PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,1f)
+                }.build())
+        }
+
         override fun onPlayFromMediaId(mediaId: String?, bundle: Bundle?) {
             Log.d(TAG, "OnPlayMediaId MediaSession" + mediaId)
             val am = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
