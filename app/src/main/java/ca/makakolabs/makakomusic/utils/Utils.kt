@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.renderscript.Allocation
@@ -11,6 +12,13 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
 import android.util.Log
+import android.opengl.ETC1.getHeight
+import android.opengl.ETC1.getWidth
+import androidx.core.graphics.drawable.DrawableCompat
+import android.os.Build
+import androidx.core.content.ContextCompat
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
 
 
 class Utils{
@@ -114,6 +122,35 @@ class Utils{
             return BitmapFactory.decodeResource(res, resId, options)
         }
 
+        fun getBitmapFromVectorDrawableWithId(context: Context, drawableId: Int): Bitmap {
+            var drawable = ContextCompat.getDrawable(context, drawableId)
+
+            val bitmap = Bitmap.createBitmap(
+                drawable!!.intrinsicWidth,
+                drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+
+            return bitmap
+        }
+
+        private fun getBitmapFromVectorDrawable( drawable: Drawable): Bitmap {
+
+
+            val bitmap = Bitmap.createBitmap(
+                drawable!!.intrinsicWidth,
+                drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+
+            return bitmap
+        }
+
+
         fun calculateInSampleSize(
             options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int
         ): Int {
@@ -137,17 +174,22 @@ class Utils{
             return inSampleSize
         }
 
-        fun isClickableArea(x: Float, y: Float, bitmapDrawable: BitmapDrawable, option: Int): Boolean {
-            val bm = bitmapDrawable.bitmap
+        fun isClickableArea(x: Float, y: Float, vectorDrawable: Drawable, option: Int): Boolean {
+            val bm = getBitmapFromVectorDrawable(vectorDrawable)
             val newX:Float = if (x <= 0) 0f else x
             val newY:Float = if (y <= 0) 0f else y
             Log.d("Utils", " $newX $newY")
             when (option) {
-                1 -> if (bm.getPixel(newX.toInt(), newY.toInt()) > 0)
+                1 -> if (bm.getPixel(newX.toInt(), newY.toInt()) != 0) {
+                    bm.recycle()
                     return true
+                }
                 2 -> {
-                    Log.d("Utils", " " + bm.getPixel(newX.toInt(), newY.toInt()))
-                    return (Color.alpha(bm.getPixel(newX.toInt(), newY.toInt())) >= 0)
+                    Log.d("Utils", "One " + bm.getPixel(newX.toInt(), newY.toInt()))
+                    var result = Color.alpha(bm.getPixel(newX.toInt(), newY.toInt())) >= 0
+                    Log.d("Utils", "Two $result")
+                    bm.recycle()
+                    return result
                 }
                 else -> return false
             }

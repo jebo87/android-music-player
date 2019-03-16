@@ -1,94 +1,141 @@
 package ca.makakolabs.makakomusic.ui.customviews
 
 import android.content.Context
-import android.graphics.Matrix
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.VectorDrawable
+import android.os.Handler
+import android.support.v4.media.session.MediaControllerCompat
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
+import android.view.animation.RotateAnimation
 import android.widget.ImageView
+import ca.makakolabs.makakomusic.R
+import ca.makakolabs.makakomusic.ui.activities.PlaybackActivity
 import ca.makakolabs.makakomusic.utils.Utils
+import java.io.FileNotFoundException
 
-class CircularSlider (context: Context, attrs: AttributeSet): ImageView(context, attrs), View.OnTouchListener {
+class CircularSlider(context: Context, attrs: AttributeSet) : ImageView(context, attrs), View.OnTouchListener {
+    private var oldAngle = 0f
+    var duration:Long = 0
+    var pivx = 0
+    var pivy = 0
+    private var angle = 0f
+    var percentage =0f
+    private var mHandler = Handler()
 
-     private var theMatrix= Matrix()
-     var pivx = 0
-     var pivy = 0
-     private  var angle = 0f
+
+    private lateinit var rotate: RotateAnimation
+    var mediaController: MediaControllerCompat? = null
 
     companion object {
         val TAG = "CircularSlider"
     }
 
     init {
-
-        setOnTouchListener(this)
-    }
-
-
-
-    fun rotate(angle: Float) {
-
-        scaleType = ImageView.ScaleType.MATRIX
-            //theMatrix.postRotate(angle, pivx.toFloat(), pivy.toFloat())
-       theMatrix.setRotate(angle, pivx.toFloat(), pivy.toFloat())
-        imageMatrix = theMatrix
-
-        requestLayout()
-        invalidate()
-
-
-
-
+        this.setOnTouchListener(this)
 
     }
 
 
-    override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
-        val x = motionEvent.x
-        val y = motionEvent.y
+
+    private fun checkValidTouchArea(x:Float, y: Float):Boolean{
+
+//        var maxX = pivx.toDouble() *2
+//        var maxY = pivy.toDouble()*2
+//
+//        var maxValue = Math.sqrt((Math.pow(maxX.toDouble(),2.0)+Math.pow(maxY.toDouble(),2.0)))
+//        var minValue = Math.sqrt((Math.pow((pivx*1.5),2.0)+Math.pow((pivy*1.5),2.0)))
+//
+//        var currentValue = Math.sqrt((Math.pow(x.toDouble(),2.0)+Math.pow(y.toDouble(),2.0)))
+//
+//        if(currentValue in minValue..maxValue)
+//            return true
+//
+//
+        return false
 
 
-        when (motionEvent.action) {
 
+
+
+
+    }
+
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        var x = event.x
+        var y = event.y
+        when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
-                if (angle < 0)
-                    angle += 360f
-//                if (Utils.isClickableArea(motionEvent.x, motionEvent.y, this.background as VectorDrawable, 1)) {
-                    //The user clicked somewhere in the circle, we have to move the controller to that exact point and forward or rewind the song accordingly
-                   rotate(angle)
 
-//                } else
-//                    return false
-            }
-            MotionEvent.ACTION_MOVE -> {
-                Log.d(TAG, "Entro a onTouch")
-
-                //The user is dragging the controller, we should move it so it stays on his finger.
-                angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
-                if (angle < 0)
-                    angle += 360f
-                rotate(angle)
-
+                if(Utils.isClickableArea(x,y,this.background,1)) {
+                    PlaybackActivity.isUILocked = true
+                    angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
+                    if (angle < 0)
+                        angle += 360f
+                    Log.d(TAG,"${checkValidTouchArea(x,y)}")
+                    rotate(angle, 10)
+                }else{
+                    return false
+                }
 
 
             }
-            MotionEvent.ACTION_UP ->
-            {
 
-                //Seek to the new position
-                //                notifyPlaybackChange(PlaybackObserver.SEEK)
+            MotionEvent.ACTION_MOVE->{
+
+                    PlaybackActivity.isUILocked = true
+                    angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
+                    if (angle < 0)
+                        angle += 360f
+                    Log.d(TAG,"${checkValidTouchArea(x,y)}")
+                    rotate(angle, 10)
 
             }
 
+            MotionEvent.ACTION_UP ->{
+                if(PlaybackActivity.isUILocked) {
+                    PlaybackActivity.isUILocked = false
+                    oldAngle = angle
+                    percentage = angle / 360
+                    mediaController?.transportControls?.seekTo((duration * percentage).toLong())
+                }
 
+            }
         }
-
         return true
     }
+
+
+    fun rotate(newAngle: Float, duration: Long): Float {
+
+        angle = newAngle
+        rotate = RotateAnimation(
+            oldAngle,
+            angle,
+            Animation.RELATIVE_TO_SELF,
+            0.5f,
+            Animation.RELATIVE_TO_SELF,
+            0.5f
+        );
+        rotate.duration = duration
+        rotate.interpolator = LinearInterpolator()
+
+        startAnimation(rotate)
+        rotate.fillAfter = true
+
+        oldAngle = angle
+
+        return angle
+
+
+    }
+
+
+
+
 
 
 }

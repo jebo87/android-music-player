@@ -1,14 +1,10 @@
 package ca.makakolabs.makakomusic.ui.activities
 
-import android.app.Activity
 import android.content.ComponentName
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.*
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
@@ -26,14 +22,20 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import android.provider.MediaStore
+import android.util.DisplayMetrics
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.widget.ImageView
+import androidx.core.graphics.drawable.DrawableCompat
 import java.io.FileNotFoundException
 
 
 class PlaybackActivity : AppCompatActivity() {
-    private val PROGRESS_UPDATE_INTERNAL: Long = 1000
-    private val PROGRESS_UPDATE_INITIAL_INTERVAL: Long = 100
+
+
+    private val PROGRESS_UPDATE_INTERNAL: Long = 250
+    private val PROGRESS_UPDATE_INITIAL_INTERVAL: Long = 10
     private var mediaController: MediaControllerCompat? = null
     private val mExecutorService = Executors.newSingleThreadScheduledExecutor()
     private var mScheduleFuture: ScheduledFuture<*>? = null
@@ -42,6 +44,9 @@ class PlaybackActivity : AppCompatActivity() {
     private lateinit var mMediaBrowser: MediaBrowserCompat
     private lateinit var song: Song
     private var percentage = 0.0
+    private var pivX = 0
+    private var pivY = 0
+    private var tempBitmap: Bitmap? = null
 
 
     private val mUpdateProgressTask = Runnable { updateProgress() }
@@ -49,6 +54,8 @@ class PlaybackActivity : AppCompatActivity() {
 
     companion object {
         val TAG = "PlaybackActivity"
+        var isUILocked = false
+
     }
 
 
@@ -58,7 +65,6 @@ class PlaybackActivity : AppCompatActivity() {
         this.window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.playback_activity)
-//        song = intent.extras.getParcelable("song") as Song
 
         mMediaBrowser = MediaBrowserCompat(
             this,
@@ -66,11 +72,31 @@ class PlaybackActivity : AppCompatActivity() {
         )
 
 
+        val metrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(metrics)
+
+
     }
 
     override fun onStart() {
         super.onStart()
         mMediaBrowser.connect()
+        Thread(Runnable {
+
+            mHandler.post {
+                try {
+
+                    tempBitmap = Utils.getBitmapFromVectorDrawableWithId(this, R.drawable.ic_albumart_bg)
+                    pivX = tempBitmap!!.width / 2
+                    pivY = tempBitmap!!.height / 2
+                    tempBitmap!!.recycle()
+                } catch (e: FileNotFoundException) {
+                    //no album art
+                }
+
+
+            }
+        }).start()
 
     }
 
@@ -101,30 +127,29 @@ class PlaybackActivity : AppCompatActivity() {
                 try {
 
                     //load the blurred background
-                    myBitmap =MediaStore.Images.Media.getBitmap(this.contentResolver, song.description.iconUri)
+                    myBitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, song.description.iconUri)
                     val blurredBackground = Utils.blurImage(this@PlaybackActivity, myBitmap, 250, 250)
                     playback_constraint_layout.background = BitmapDrawable(resources, blurredBackground)
+
                 } catch (e: FileNotFoundException) {
                     //no album art
                 }
-
 
 
             }
         }).start()
 
 
+
+
+        playback_imageview_bg_slider.pivx = pivX
+        playback_imageview_bg_slider.pivy = pivY
+
+        playback_imageview_bg_slider.duration = song.duration
+
+
     }
 
-//    inner class LoadBitmapTask : AsyncTask<Uri, Void, BitmapDrawable>(){
-//        override fun doInBackground(vararg params: Uri?): BitmapDrawable {
-//            var myBitmap = Picasso.get().load(params[0]).get()
-//            val blurredBackground = Utils.blurImage(this@PlaybackActivity,myBitmap, 250, 250)
-//            return  BitmapDrawable(resources,blurredBackground)
-//
-//        }
-//
-//    }
 
     private val mConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
@@ -145,7 +170,7 @@ class PlaybackActivity : AppCompatActivity() {
     @Throws(RemoteException::class)
     private fun connectToSession(mToken: MediaSessionCompat.Token) {
         if (mediaController == null) {
-            Log.d(TAG, "MEdia controller is null!")
+
 
             mToken.also { token ->
 
@@ -173,9 +198,28 @@ class PlaybackActivity : AppCompatActivity() {
                 // Register a Callback to stay in sync
                 mediaController.registerCallback(controllerCallback)
 
-                val state = mediaController.playbackState
 
-                updatePlaybackState(state)
+
+                updatePlaybackState(pbState)
+                playback_imageview_bg_slider.mediaController = mediaController
+
+                playback_pause_button.setOnClickListener {
+
+                    when (mLastPlaybackState?.state) {
+                        PlaybackStateCompat.STATE_PLAYING -> {
+                            Log.d(TAG, "Is Playing, going to pause now")
+
+                            mediaController!!.transportControls!!.pause()
+
+                        }
+                        PlaybackStateCompat.STATE_PAUSED -> {
+                            Log.d(TAG, "Is paused, going to play now")
+                            mediaController!!.transportControls!!.play()
+                        }
+
+                    }
+                }
+
 
             }
             scheduleSeekbarUpdate()
@@ -187,6 +231,7 @@ class PlaybackActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         mMediaBrowser.disconnect()
+        mExecutorService.shutdown()
 
     }
 
@@ -194,18 +239,45 @@ class PlaybackActivity : AppCompatActivity() {
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             //update the UI according to the new metadata
+            Log.d(TAG, "Metadata changed" + metadata!!.keySet().size)
 
 
         }
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            Log.d(TAG, "State changed" + state!!.state)
+            updatePlaybackState(state)
+
+            when (state?.state) {
+                PlaybackStateCompat.STATE_PLAYING -> {
+                    Log.d(TAG, "changed to playing")
+                    playback_pause_button.setImageResource(R.drawable.ic_pause_button)
+                    scheduleSeekbarUpdate()
+
+
+                }
+                PlaybackStateCompat.STATE_PAUSED -> {
+                    Log.d(TAG, "changed to paused")
+
+                    playback_pause_button.setImageResource(R.drawable.ic_play_button)
+//                    playback_imageview_bg_slider.clearAnimation()
+                    stopSeekbarUpdate()
+                    percentage = (mLastPlaybackState!!.position!!.toDouble() / song.duration.toDouble())
+                    playback_imageview_bg_slider.rotate((percentage * 360).toFloat(), 10)
+
+
+                }
+
+            }
+
 
         }
+
+
     }
 
-    private fun updatePlaybackState(stateCompat: PlaybackStateCompat) {
-        mLastPlaybackState = stateCompat
+    private fun updatePlaybackState(stateCompat: PlaybackStateCompat?) {
+        if (stateCompat != null)
+            mLastPlaybackState = stateCompat
     }
 
     private fun updateProgress() {
@@ -224,10 +296,13 @@ class PlaybackActivity : AppCompatActivity() {
         }
         playback_playtime.text = Utils.convertToTime(currentPosition) + " / " + Utils.convertToTime(song.duration)
         percentage = (currentPosition.toDouble() / song.duration.toDouble())
-        //        playback_imageview_bg_slider.rotate((percentage*360).toFloat())
 
-        playback_rotate_layout.angle = -(percentage * 360).toInt()
-        Log.d(TAG, "${(percentage * 360).toInt()}")
+        if (!isUILocked) {
+            //Rotate the dial depending on the progres of the song.
+            playback_imageview_bg_slider.rotate((percentage * 360).toFloat(),PROGRESS_UPDATE_INTERNAL )
+        }
+
+
     }
 
     private fun scheduleSeekbarUpdate() {
@@ -247,3 +322,4 @@ class PlaybackActivity : AppCompatActivity() {
     }
 
 }
+

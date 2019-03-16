@@ -91,8 +91,64 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
             mediaSession.setPlaybackState(
                 PlaybackStateCompat.Builder().apply {
 
-                    setState(PlaybackStateCompat.STATE_STOPPED,PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,1f)
-                }.build())
+                    setState(PlaybackStateCompat.STATE_STOPPED, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f)
+                }.build()
+            )
+        }
+
+        override fun onSeekTo(pos: Long) {
+            super.onSeekTo(pos)
+            Log.d(TAG, "Seeking to $pos ")
+            player.seekTo(pos)
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder().apply {
+
+                    setState(
+                        mediaSession.controller.playbackState.state,
+                        pos,
+                        1f
+                    )
+                }.build()
+            )
+
+
+
+
+
+        }
+
+        override fun onPause() {
+            super.onPause()
+            Log.d(TAG, "Pausing in position${mediaSession.controller.playbackState.position}")
+
+            player.pause()
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder().apply {
+
+                    setState(
+                        PlaybackStateCompat.STATE_PAUSED,
+                        mediaSession.controller.playbackState.position,
+                        1f
+                    )
+                }.build()
+            )
+
+        }
+
+        override fun onPlay() {
+//            super.onPlay()
+            Log.d(TAG, "Entered onPlay")
+            player.play()
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder().apply {
+
+                    setState(
+                        PlaybackStateCompat.STATE_PLAYING,
+                        mediaSession.controller.playbackState.position,
+                        1f
+                    )
+                }.build()
+            )
         }
 
         override fun onPlayFromMediaId(mediaId: String?, bundle: Bundle?) {
@@ -118,7 +174,7 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
                 mediaSession.setMetadata(songToPlay.toMetaData())
                 mediaSession.setExtras(Bundle().apply {
                     classLoader = Song::class.java!!.classLoader
-                    putParcelable("com.makakolabs.makakomusic.song",songToPlay)
+                    putParcelable("com.makakolabs.makakomusic.song", songToPlay)
                 })
 
                 // start the player (custom call)
@@ -126,7 +182,7 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
 
 
                 startService(Intent(applicationContext, MakakoPlaybackService::class.java))
-                player.play(mediaId!!)
+                player.playFromId(mediaId!!)
                 // Register BECOME_NOISY BroadcastReceiver
                 //registerReceiver(myNoisyAudioStreamReceiver, intentFilter)
                 // Put the service in the foreground, post notification
@@ -136,8 +192,9 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
                 mediaSession.setPlaybackState(
                     PlaybackStateCompat.Builder().apply {
 
-                        setState(PlaybackStateCompat.STATE_PLAYING,PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,1f)
-                    }.build())
+                        setState(PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f)
+                    }.build()
+                )
 
 
 
@@ -190,7 +247,7 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
 
             // Add an app icon and set its accent color
             // Be careful about the color
-            setSmallIcon(R.drawable.ic_album_art_bg)
+            setSmallIcon(R.drawable.ic_albumart_bg)
             color = ContextCompat.getColor(applicationContext, R.color.primary_dark_material_dark)
 
             // Add a pause button

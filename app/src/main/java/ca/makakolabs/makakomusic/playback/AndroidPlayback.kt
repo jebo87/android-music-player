@@ -22,7 +22,7 @@ class AndroidPlayback(context: Context){
         val TAG= "AndroidPlayback"
     }
 
-    fun play(mediaId: String){
+    fun playFromId(mediaId: String){
 
         if(!::player.isInitialized)
             initializePlayer()
@@ -46,8 +46,28 @@ class AndroidPlayback(context: Context){
         player.stop()
 
     }
+    fun pause(){
+        if(!::player.isInitialized)
+            return
+        player.playWhenReady=false
 
-    fun initializePlayer(){
+    }
+    fun play(){
+        Log.d(TAG,"Preparing playback")
+        if(!::player.isInitialized)
+            return
+        player.playWhenReady=true
+
+    }
+    fun seekTo(position: Long){
+        if(!::player.isInitialized)
+            return
+        player.seekTo(position)
+
+
+    }
+
+    private fun initializePlayer(){
         player = ExoPlayerFactory.newSimpleInstance(mContext)
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(CONTENT_TYPE_MUSIC)

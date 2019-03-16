@@ -34,6 +34,7 @@ import ca.makakolabs.makakomusic.services.MakakoPlaybackService
 import ca.makakolabs.makakomusic.ui.fragments.AlbumsFragment
 import ca.makakolabs.makakomusic.ui.fragments.SongsFragment
 import com.google.android.material.tabs.TabLayout
+import kotlinx.android.synthetic.main.playback_activity.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MediaActionListener{
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var musicPageAdapter: MusicPagerAdapter
     private lateinit var viewPager: ViewPager
     lateinit var mediaBrowser: MediaBrowserCompat
+    private lateinit var currentSong:Song
 
 
 
@@ -59,8 +61,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+
+            var playbackIntent = Intent(this,PlaybackActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(playbackIntent)
+            fab.setImageBitmap(currentSong.description.iconBitmap)
+
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -233,6 +241,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onMediaItemSelected(song: Song) {
         var controller = MediaControllerCompat.getMediaController(this@MainActivity)
+        currentSong = song
 
         controller.transportControls.stop()
 
@@ -244,7 +253,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         var playbackIntent = Intent(this,PlaybackActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        playbackIntent.putExtra("song",song)
         startActivity(playbackIntent)
 
 
@@ -265,7 +273,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            Log.d(TAG, "State changed" + state!!.state)
+            when (state?.state) {
+                PlaybackStateCompat.STATE_PLAYING -> {
+                    fab.setImageBitmap(currentSong.description.iconBitmap)
+
+
+                }
+                PlaybackStateCompat.STATE_PAUSED -> {
+
+
+
+                }
+
+            }
         }
     }
 
