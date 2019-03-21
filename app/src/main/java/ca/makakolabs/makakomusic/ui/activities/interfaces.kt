@@ -11,4 +11,5 @@ interface MediaBrowserProvider{
 
 interface MediaActionListener : MediaBrowserProvider{
      fun onMediaItemSelected(song : Song)
+     fun setMediaList(songs : MutableList<Song>)
 }

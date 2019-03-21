@@ -47,7 +47,7 @@ class Utils{
 
         fun blurImage(context: Context, albumart: Bitmap, width: Int, height: Int): Bitmap? {
              val BITMAP_SCALE = 0.2f
-             val BLUR_RADIUS = 8f
+             val BLUR_RADIUS = 15f
              var inputBitmap: Bitmap? = null
              var outputBitmap: Bitmap? = null
 

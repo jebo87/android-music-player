@@ -10,7 +10,9 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -39,7 +41,8 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
 
     }
 
-    private lateinit var repository: MusicRepository
+    private lateinit var songRepository: SongRepository
+    private lateinit var albumRepository: AlbumRepository
     private lateinit var stateBuilder: PlaybackStateCompat.Builder
     private lateinit var controller: MediaControllerCompat
 
@@ -111,11 +114,8 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
                 }.build()
             )
 
-
-
-
-
         }
+
 
         override fun onPause() {
             super.onPause()
@@ -151,12 +151,53 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
             )
         }
 
+        override fun onSkipToNext() {
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder().apply {
+                    setState(
+                        PlaybackStateCompat.STATE_SKIPPING_TO_NEXT,
+                        0,
+                        1f
+                    )
+                }.build()
+            )
+
+            var nextSongId = player.skipToNext()
+
+            var nextSong =songRepository.getSongFromId(nextSongId)
+
+
+
+            mediaSession.setMetadata(nextSong!!.toMetaData())
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder().apply {
+
+                    setState(
+                        PlaybackStateCompat.STATE_PLAYING,
+                        mediaSession.controller.playbackState.position,
+                        1f
+                    )
+                }.build()
+            )
+
+
+        }
+
+        override fun onAddQueueItem(description: MediaDescriptionCompat?) {
+//            super.onAddQueueItem(description)
+            player.addQueueItem(description!!)
+        }
+
+        override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
+            super.onCommand(command, extras, cb)
+        }
+
         override fun onPlayFromMediaId(mediaId: String?, bundle: Bundle?) {
             Log.d(TAG, "OnPlayMediaId MediaSession" + mediaId)
             val am = applicationContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             // Request audio focus for playback, this registers the afChangeListener
 
-            //TODO: implement a new way that is not deprecated
+            //TODO: implement a new way that is not deprecated for the audio focus
             @Suppress("DEPRECATION")
             var result = am.requestAudioFocus(
                 mOnAudioFocusChangeListener,
@@ -171,11 +212,13 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
 
                 //set the song metadata and the additional info (artist, duration, etc.)
                 val songToPlay = bundle!!.getParcelable("com.makakolabs.makakomusic.song") as Song
+                val queue = bundle!!.getParcelableArrayList<Song>("com.makakolabs.makakomusic.songList")
                 mediaSession.setMetadata(songToPlay.toMetaData())
-                mediaSession.setExtras(Bundle().apply {
-                    classLoader = Song::class.java!!.classLoader
-                    putParcelable("com.makakolabs.makakomusic.song", songToPlay)
-                })
+//                mediaSession.setExtras(Bundle().apply {
+//                    classLoader = Song::class.java!!.classLoader
+//                    putParcelable("com.makakolabs.makakomusic.song", songToPlay)
+//                    putParcelableArrayList("com.makakolabs.makakomusic.songList",queue)
+//                })
 
                 // start the player (custom call)
                 //var test = mediaSession.controller.queue[0].description.title
@@ -192,7 +235,7 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
                 mediaSession.setPlaybackState(
                     PlaybackStateCompat.Builder().apply {
 
-                        setState(PlaybackStateCompat.STATE_PLAYING, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1f)
+                        setState(PlaybackStateCompat.STATE_PLAYING, 0L, 1f)
                     }.build()
                 )
 
@@ -318,17 +361,17 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
         // Check root menu and return the items depending on the parentMediaId requested:
         when (parentMediaId) {
             SONGS_MEDIA_ROOT_ID -> {
-                repository = SongRepository(application)
+                songRepository  = SongRepository(application)
 
                 //Get the songs from the repository and send them back to the subscriber
-                result.sendResult(repository.getMediaFromCursor())
+                result.sendResult(songRepository.getMediaFromCursor())
 
             }
             ALBUMS_MEDIA_ROOT_ID -> {
-                repository = AlbumRepository(application)
+                albumRepository = AlbumRepository(application)
 
                 //Get the albums from the repository and send them back to the subscriber
-                result.sendResult(repository.getMediaFromCursor())
+                result.sendResult(albumRepository.getMediaFromCursor())
             }
         }
 

@@ -32,6 +32,7 @@ class SongsFragment : MediaBrowserFragment() {
     lateinit var recycler: RecyclerView
     lateinit var viewCL: View
     lateinit  var myActivity: MediaActionListener
+    private  var songs = mutableListOf<Song>()
 
 
     override fun onCreateView(
@@ -48,7 +49,9 @@ class SongsFragment : MediaBrowserFragment() {
             adapter = mAdapter.apply {
                 setOnItemClickListener { item, view ->
                     var songToPlay = (item as SongItem).getSong()
+                    myActivity.setMediaList(songs)
                     myActivity.onMediaItemSelected(songToPlay)
+
 
 
                 }
@@ -92,18 +95,19 @@ class SongsFragment : MediaBrowserFragment() {
     private var subscriptionCallback = object: MediaBrowserCompat.SubscriptionCallback(){
         override fun onChildrenLoaded(
             parentId: String,
-            songs: MutableList<MediaBrowserCompat.MediaItem>
+            loadedSongs: MutableList<MediaBrowserCompat.MediaItem>
         ) {
-            if (songs == null || songs.isEmpty()) {
+            if (loadedSongs == null || loadedSongs.isEmpty()) {
                 return
             }
 
             //replace the contents of the adapter with the result sent from the MediaBrowserService
             mAdapter.clear()
-            for (song in songs) {
+            for (song in loadedSongs) {
                 mAdapter.add(SongItem(song as Song))
-                MediaControllerCompat.getMediaController(myActivity as Activity).addQueueItem(song.description)
+                songs.add(song)
             }
+
             mAdapter.notifyDataSetChanged()
             MediaControllerCompat.getMediaController(myActivity as Activity).transportControls.prepare()
 

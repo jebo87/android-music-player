@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -37,7 +38,7 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.playback_activity.*
 
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MediaActionListener{
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MediaActionListener {
 
 
     val fragmentManager = supportFragmentManager
@@ -45,8 +46,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var musicPageAdapter: MusicPagerAdapter
     private lateinit var viewPager: ViewPager
     lateinit var mediaBrowser: MediaBrowserCompat
-    private lateinit var currentSong:Song
-
+    private lateinit var currentSong: Song
+    lateinit var songs: MutableList<Song>
 
 
     companion object {
@@ -61,10 +62,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            //            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                .setAction("Action", null).show()
 
-            var playbackIntent = Intent(this,PlaybackActivity::class.java)
+            var playbackIntent = Intent(this, PlaybackActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(playbackIntent)
             fab.setImageBitmap(currentSong.description.iconBitmap)
@@ -94,7 +95,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // No explanation needed; request the permission
             if (Build.VERSION.SDK_INT > 23) {
                 requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 2)
-            }else{
+            } else {
 
                 TODO("Do this for SDK < 23")
             }
@@ -112,7 +113,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-    private fun loadFragments(){
+
+    private fun loadFragments() {
 
         //create a MediaBrowser client to connect to our MediaBrowser service
         mediaBrowser = MediaBrowserCompat(
@@ -121,7 +123,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             mediaBrowserConnectionCallback,
             null // optional Bundle
         )
-
 
 
         //viewpager
@@ -137,9 +138,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         tabLayout.setupWithViewPager(viewPager)
 
 
-
-
     }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>, grantResults: IntArray
@@ -231,11 +231,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mediaBrowser.disconnect()
     }
 
-    override fun getMediaBrowserCompat():MediaBrowserCompat {
-       return mediaBrowser
+    override fun getMediaBrowserCompat(): MediaBrowserCompat {
+        return mediaBrowser
     }
 
-    override fun getMediaControllerCompat():MediaControllerCompat{
+    override fun getMediaControllerCompat(): MediaControllerCompat {
         return MediaControllerCompat.getMediaController(this)
     }
 
@@ -245,24 +245,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         controller.transportControls.stop()
 
-        controller.transportControls
-            .playFromMediaId(song.id,Bundle().apply {
-                this.putParcelable("com.makakolabs.makakomusic.song",song)
+        for (songTemp in songs) {
+            controller.addQueueItem(songTemp.toMetaData().description)
+
+        }
+
+        controller.transportControls.playFromMediaId(song.id, Bundle().apply {
+                putParcelable("com.makakolabs.makakomusic.song", song)
             })
 
 
-        var playbackIntent = Intent(this,PlaybackActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        var playbackIntent = Intent(this, PlaybackActivity::class.java)
+        playbackIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(playbackIntent)
-
-
-
-
-
 
     }
 
-    fun onPlaybackStart(){
+    override fun setMediaList(newSongs: MutableList<Song>) {
+        songs = newSongs
+    }
+
+    fun onPlaybackStart() {
 
     }
 
@@ -282,7 +285,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 PlaybackStateCompat.STATE_PAUSED -> {
 
 
-
                 }
 
             }
@@ -293,6 +295,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         override fun onConnectionFailed() {
             Log.d(TAG, "Connection Aborted!")
         }
+
         override fun onConnected() {
 
             Log.d(TAG, "Connected to MediaBrowser")
@@ -332,10 +335,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
-
-
-
 
 
 }

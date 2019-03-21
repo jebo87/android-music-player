@@ -41,28 +41,6 @@ class CircularSlider(context: Context, attrs: AttributeSet) : ImageView(context,
 
 
 
-    private fun checkValidTouchArea(x:Float, y: Float):Boolean{
-
-//        var maxX = pivx.toDouble() *2
-//        var maxY = pivy.toDouble()*2
-//
-//        var maxValue = Math.sqrt((Math.pow(maxX.toDouble(),2.0)+Math.pow(maxY.toDouble(),2.0)))
-//        var minValue = Math.sqrt((Math.pow((pivx*1.5),2.0)+Math.pow((pivy*1.5),2.0)))
-//
-//        var currentValue = Math.sqrt((Math.pow(x.toDouble(),2.0)+Math.pow(y.toDouble(),2.0)))
-//
-//        if(currentValue in minValue..maxValue)
-//            return true
-//
-//
-        return false
-
-
-
-
-
-
-    }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         var x = event.x
@@ -75,7 +53,6 @@ class CircularSlider(context: Context, attrs: AttributeSet) : ImageView(context,
                     angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
                     if (angle < 0)
                         angle += 360f
-                    Log.d(TAG,"${checkValidTouchArea(x,y)}")
                     rotate(angle, 10)
                 }else{
                     return false
@@ -90,7 +67,6 @@ class CircularSlider(context: Context, attrs: AttributeSet) : ImageView(context,
                     angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
                     if (angle < 0)
                         angle += 360f
-                    Log.d(TAG,"${checkValidTouchArea(x,y)}")
                     rotate(angle, 10)
 
             }
