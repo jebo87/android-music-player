@@ -90,6 +90,16 @@ class AndroidPlayback(context: Context) {
         //the current index is modified in playfromId, so we return the id related to the currentIndex which is the new song
         return songs[currentIndex].id
 
+    }
+    fun skipToPrevious(): String? {
+        if (!::player.isInitialized)
+            return null
+        if (currentIndex == 0){
+            currentIndex = songs.size
+        }
+        playFromId(songs[currentIndex - 1].id)
+        //the current index is modified in playfromId, so we return the id related to the currentIndex which is the new song
+        return songs[currentIndex].id
 
     }
 

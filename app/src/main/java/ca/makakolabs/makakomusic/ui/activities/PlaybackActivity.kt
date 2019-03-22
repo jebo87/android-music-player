@@ -207,13 +207,13 @@ class PlaybackActivity : AppCompatActivity() {
                         PlaybackStateCompat.STATE_PLAYING -> {
                             Log.d(TAG, "Is Playing, going to pause now")
 
-                            mediaController!!.transportControls!!.pause()
+                            mediaController.transportControls.pause()
 
 
                         }
                         PlaybackStateCompat.STATE_PAUSED -> {
                             Log.d(TAG, "Is paused, going to play now")
-                            mediaController!!.transportControls!!.play()
+                            mediaController.transportControls.play()
                         }
 
                     }
@@ -221,7 +221,12 @@ class PlaybackActivity : AppCompatActivity() {
 
                 playback_next_button.setOnClickListener {
                     Log.d(TAG, "Skipping to next song")
-                    mediaController!!.transportControls!!.skipToNext()
+                    mediaController.transportControls.skipToNext()
+                }
+
+                playback_back_button.setOnClickListener{
+                    Log.d(TAG, "Skipping to previous song")
+                    mediaController.transportControls.skipToPrevious()
                 }
 
 
@@ -280,6 +285,12 @@ class PlaybackActivity : AppCompatActivity() {
 
 
                 }
+                PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS -> {
+                    Log.d(TAG, "Skipping to previous song")
+                    scheduleSeekbarUpdate()
+
+
+                }
 
             }
 
@@ -310,7 +321,7 @@ class PlaybackActivity : AppCompatActivity() {
             currentPosition += (timeDelta.toInt() * mLastPlaybackState!!.playbackSpeed).toLong()
         }
 
-        Log.d(TAG,"updating progress $currentPosition")
+        //        Log.d(TAG,"updating progress $currentPosition")
         //display  elapsed time / total time
         playback_playtime.text = "${Utils.convertToTime(currentPosition)}  /  ${Utils.convertToTime(
             mediaController!!.metadata!!.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)

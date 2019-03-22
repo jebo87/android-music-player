@@ -151,6 +151,37 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
             )
         }
 
+        override fun onSkipToPrevious() {
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder().apply {
+                    setState(
+                        PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS,
+                        0,
+                        1f
+                    )
+                }.build()
+            )
+
+            var previousSongId = player.skipToPrevious()
+
+            var previousSong =songRepository.getSongFromId(previousSongId)
+
+
+
+            mediaSession.setMetadata(previousSong!!.toMetaData())
+            mediaSession.setPlaybackState(
+                PlaybackStateCompat.Builder().apply {
+
+                    setState(
+                        PlaybackStateCompat.STATE_PLAYING,
+                        mediaSession.controller.playbackState.position,
+                        1f
+                    )
+                }.build()
+            )
+
+        }
+
         override fun onSkipToNext() {
             mediaSession.setPlaybackState(
                 PlaybackStateCompat.Builder().apply {
@@ -182,6 +213,8 @@ class MakakoPlaybackService : MediaBrowserServiceCompat() {
 
 
         }
+
+
 
         override fun onAddQueueItem(description: MediaDescriptionCompat?) {
 //            super.onAddQueueItem(description)
