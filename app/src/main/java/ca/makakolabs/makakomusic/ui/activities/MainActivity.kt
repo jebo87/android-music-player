@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             var playbackIntent = Intent(this, PlaybackActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(playbackIntent)
-            fab.setImageBitmap(currentSong.description.iconBitmap)
+            //
 
         }
 

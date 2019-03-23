@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="torta">
+        <attr name="angle" format="float"></attr>
+        <attr name="halo" format="color"></attr>
+        <attr name="x" format="integer"></attr>
+        <attr name="y" format="integer"></attr>
+    </declare-styleable>
+</resources>

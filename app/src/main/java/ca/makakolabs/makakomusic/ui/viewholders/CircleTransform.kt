@@ -29,7 +29,19 @@ class CircleTransform : Transformation {
         canvas.drawCircle(r, r, r, paint)
 
 
+        //In case we need to paint a hole in the middle like in old vinyls
+//        paintHoleInMiddle(canvas,r)
 
+
+
+
+
+
+        squaredBitmap.recycle()
+        return bitmap
+    }
+
+    private fun paintHoleInMiddle(canvas : Canvas, r :Float){
         val paint2 = Paint()
         paint2.style = Paint.Style.STROKE
         paint2.strokeWidth = 2F
@@ -59,10 +71,6 @@ class CircleTransform : Transformation {
         paint5.color = Color.argb(60,40,40,40)
         canvas.drawCircle(r, r, r*0.30f, paint5)
 
-
-
-        squaredBitmap.recycle()
-        return bitmap
     }
 
     override fun key(): String {

@@ -15,15 +15,16 @@ import android.widget.ImageView
 import ca.makakolabs.makakomusic.R
 import ca.makakolabs.makakomusic.ui.activities.PlaybackActivity
 import ca.makakolabs.makakomusic.utils.Utils
+import kotlinx.android.synthetic.main.playback_activity.*
 import java.io.FileNotFoundException
 
 class CircularSlider(context: Context, attrs: AttributeSet) : ImageView(context, attrs), View.OnTouchListener {
     private var oldAngle = 0f
-    var duration:Long = 0
+    var duration: Long = 0
     var pivx = 0
     var pivy = 0
     private var angle = 0f
-    var percentage =0f
+    var percentage = 0f
     private var mHandler = Handler()
 
 
@@ -40,43 +41,45 @@ class CircularSlider(context: Context, attrs: AttributeSet) : ImageView(context,
     }
 
 
-
-
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         var x = event.x
         var y = event.y
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
 
-                if(Utils.isClickableArea(x,y,this.background,1)) {
+                if (Utils.isClickableArea(x, y, this.background, 1)) {
                     PlaybackActivity.isUILocked = true
                     angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
                     if (angle < 0)
                         angle += 360f
                     rotate(angle, 10)
-                }else{
+                } else {
                     return false
                 }
 
 
             }
 
-            MotionEvent.ACTION_MOVE->{
+            MotionEvent.ACTION_MOVE -> {
 
-                    PlaybackActivity.isUILocked = true
-                    angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
-                    if (angle < 0)
-                        angle += 360f
-                    rotate(angle, 10)
+                PlaybackActivity.isUILocked = true
+                angle = Math.toDegrees(Math.atan2((y - pivy).toDouble(), (x - pivx).toDouble())).toFloat()
+                if (angle < 0)
+                    angle += 360f
+                rotate(angle, 10)
+                (context as PlaybackActivity).playback_progress_bar.setPosEnd(angle)
 
             }
 
-            MotionEvent.ACTION_UP ->{
-                if(PlaybackActivity.isUILocked) {
+            MotionEvent.ACTION_UP -> {
+                if (PlaybackActivity.isUILocked) {
                     PlaybackActivity.isUILocked = false
                     oldAngle = angle
                     percentage = angle / 360
                     mediaController?.transportControls?.seekTo((duration * percentage).toLong())
+                    (context as PlaybackActivity).playback_progress_bar.setPosEnd(angle)
+
+
                 }
 
             }
@@ -108,10 +111,6 @@ class CircularSlider(context: Context, attrs: AttributeSet) : ImageView(context,
 
 
     }
-
-
-
-
 
 
 }
