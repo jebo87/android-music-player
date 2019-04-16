@@ -8,6 +8,7 @@ import ca.makakolabs.makakomusic.data.model.Song
 import com.google.android.exoplayer2.C.CONTENT_TYPE_MUSIC
 import com.google.android.exoplayer2.C.USAGE_MEDIA
 import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.audio.AudioAttributes
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
@@ -21,6 +22,13 @@ class AndroidPlayback(context: Context) {
     private var mContext: Context = context
     private var songs = mutableListOf<Song>()
     private var currentIndex = -1
+
+    var isPlaying  = false
+
+    init {
+        initializePlayer()
+    }
+
 
     fun addQueueItem(song: MediaDescriptionCompat) {
         songs.add(Song(song.mediaId!!))
@@ -57,6 +65,7 @@ class AndroidPlayback(context: Context) {
             .createMediaSource(Uri.parse("content://media/external/audio/media/" + mediaId))
         player.prepare(source)
         player.playWhenReady = true
+        isPlaying = true
 
     }
 
@@ -64,6 +73,7 @@ class AndroidPlayback(context: Context) {
         if (!::player.isInitialized)
             return
         player.playWhenReady = false
+        isPlaying = false
         player.stop()
 
     }
@@ -72,6 +82,7 @@ class AndroidPlayback(context: Context) {
         if (!::player.isInitialized)
             return
         player.playWhenReady = false
+        isPlaying = false
 
     }
 
@@ -80,12 +91,16 @@ class AndroidPlayback(context: Context) {
         if (!::player.isInitialized)
             return
         player.playWhenReady = true
+        isPlaying = true
 
     }
 
     fun skipToNext(): String? {
         if (!::player.isInitialized)
             return null
+        if (currentIndex == songs.size-1){
+            currentIndex = -1
+        }
         playFromId(songs[currentIndex + 1].id)
         //the current index is modified in playfromId, so we return the id related to the currentIndex which is the new song
         return songs[currentIndex].id
@@ -111,6 +126,8 @@ class AndroidPlayback(context: Context) {
 
     }
 
+
+
     private fun initializePlayer() {
         player = ExoPlayerFactory.newSimpleInstance(mContext)
         val audioAttributes = AudioAttributes.Builder()
@@ -120,6 +137,15 @@ class AndroidPlayback(context: Context) {
         player.setAudioAttributes(audioAttributes, true)
 
 
+
+
     }
 
+    fun getPlayer(): Player{
+        return player
+    }
+
+
+
 }
+

@@ -3,7 +3,7 @@
           package="ca.makakolabs.makakomusic">
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
 
     <application
@@ -14,11 +14,18 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <service android:name=".services.MakakoPlaybackService">
+        <service android:name=".MakakoPlaybackService">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
+
             </intent-filter>
         </service>
+
+        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
         <activity
                 android:name="ca.makakolabs.makakomusic.ui.activities.MainActivity"
                 android:label="@string/title_activity_main"

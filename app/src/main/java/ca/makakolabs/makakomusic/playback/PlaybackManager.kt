@@ -1,7 +1,5 @@
 package ca.makakolabs.makakomusic.playback
 
-import ca.makakolabs.makakomusic.services.MakakoPlaybackService
-
 class PlaybackManager : Playback.Callback {
     override fun onCompletion() {
 // The current song finished playing

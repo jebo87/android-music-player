@@ -12,11 +12,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ca.makakolabs.makakomusic.R
 import ca.makakolabs.makakomusic.data.model.Album
-import ca.makakolabs.makakomusic.data.model.Song
-import ca.makakolabs.makakomusic.services.MakakoPlaybackService
+import ca.makakolabs.makakomusic.MakakoPlaybackService
 import ca.makakolabs.makakomusic.ui.activities.MediaBrowserProvider
 import ca.makakolabs.makakomusic.ui.viewholders.AlbumItem
-import ca.makakolabs.makakomusic.ui.viewholders.SongItem
 import ca.makakolabs.makakomusic.ui.viewmodels.AlbumViewModel
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.ViewHolder

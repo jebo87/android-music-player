@@ -59,10 +59,12 @@
                 android:layout_height="330dp"
                 android:id="@+id/playback_imageview_bg_slider" android:layout_gravity="center"
                 android:background="@drawable/ic_albumart_bg" android:layout_width="330dp"/>
-        <ImageView
+        <ca.makakolabs.makakomusic.ui.customviews.CircularAlbumArt
                 android:layout_width="230dp"
                 android:layout_height="230dp" app:srcCompat="@drawable/ic_empty_album"
-                android:id="@+id/playback_imageview_album" android:layout_gravity="center"/>
+                android:id="@+id/playback_imageview_album" android:layout_gravity="center"
+                style="@style/dropShadowImageView"
+        />
         <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" app:srcCompat="@drawable/ic_pause_button"
@@ -95,7 +97,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="52dp" app:srcCompat="@drawable/ic_back_button"
                     android:id="@+id/playback_back_button"
-                    app:layout_constraintTop_toBottomOf="@+id/frameLayout" app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     android:layout_marginStart="40dp" android:layout_gravity="bottom|left"
                     android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>

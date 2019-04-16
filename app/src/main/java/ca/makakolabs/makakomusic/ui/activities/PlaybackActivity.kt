@@ -1,6 +1,7 @@
 package ca.makakolabs.makakomusic.ui.activities
 
 import android.content.ComponentName
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
@@ -14,10 +15,8 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import ca.makakolabs.makakomusic.R
 import ca.makakolabs.makakomusic.data.model.Song
-import ca.makakolabs.makakomusic.services.MakakoPlaybackService
-import ca.makakolabs.makakomusic.ui.viewholders.CircleTransform
+import ca.makakolabs.makakomusic.MakakoPlaybackService
 import ca.makakolabs.makakomusic.utils.Utils
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.playback_activity.*
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
@@ -26,6 +25,8 @@ import android.provider.MediaStore
 import android.util.DisplayMetrics
 import android.view.Window
 import android.view.WindowManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import java.io.FileNotFoundException
 
 
@@ -44,6 +45,7 @@ class PlaybackActivity : AppCompatActivity() {
     private var pivX = 0
     private var pivY = 0
     private var tempBitmap: Bitmap? = null
+    var density = 1f
     private var songs = mutableListOf<Song>()
 
 
@@ -70,7 +72,10 @@ class PlaybackActivity : AppCompatActivity() {
         )
 
 
+
+
     }
+
 
     override fun onStart() {
         super.onStart()
@@ -80,27 +85,23 @@ class PlaybackActivity : AppCompatActivity() {
             Thread(Runnable {
 
                 mHandler.post {
-                    try {
-
-                        //load the albumart bitmap to calculate the pivot points for the slider.
-
-                        tempBitmap = Utils.getBitmapFromVectorDrawableWithId(this, R.drawable.ic_albumart_bg)
-                        pivX = tempBitmap!!.width / 2
-                        pivY = tempBitmap!!.height / 2
-                        tempBitmap!!.recycle()
-
-                        var metrics = DisplayMetrics()
-                        windowManager.defaultDisplay.getMetrics(metrics)
-
-                        var density = metrics.density
-
-                        playback_progress_bar.setDensity(density)
-                        playback_progress_bar.setWidthHeight(294 * density, 294 * density)
 
 
-                    } catch (e: FileNotFoundException) {
-                        //no album art
-                    }
+                    //load the albumart bitmap to calculate the pivot points for the slider.
+
+                    tempBitmap = Utils.getBitmapFromVectorDrawableWithId(this, R.drawable.ic_albumart_bg)
+                    pivX = tempBitmap!!.width / 2
+                    pivY = tempBitmap!!.height / 2
+                    tempBitmap!!.recycle()
+
+                    var metrics = DisplayMetrics()
+                    windowManager.defaultDisplay.getMetrics(metrics)
+
+                     density = metrics.density
+
+                    playback_progress_bar.setDensity(density)
+                    playback_imageview_album.density = density
+                    playback_progress_bar.setWidthHeight(294 * density, 294 * density)
 
 
                 }
@@ -116,23 +117,21 @@ class PlaybackActivity : AppCompatActivity() {
         playback_album.text = metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ALBUM)
         playback_artist.text = metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
 
-        if (playback_title.lineCount == 1){
+        if (playback_title.lineCount == 1) {
             playback_title.text = "\n${playback_title.text}"
         }
 
-        playback_playtime.text = "00:00  /  ${Utils.convertToTime(metadataCompat.getLong(MediaMetadataCompat.METADATA_KEY_DURATION))}"
-        Picasso.get().load(metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ART_URI))
-            .resize(250, 250)
-            .centerCrop()
-            .placeholder(R.drawable.ic_empty_album)
-            .error(R.drawable.ic_empty_album)
-            .transform(CircleTransform())
-            .into(playback_imageview_album)
+        playback_playtime.text =
+            "00:00  /  ${Utils.convertToTime(metadataCompat.getLong(MediaMetadataCompat.METADATA_KEY_DURATION))}"
+
+        Log.d(TAG, metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ART_URI))
 
 
-        //In case we want to load the album art blurred in the background
-       showBlurredBackground(metadataCompat)
-        //TODO("Leave and option to show blurred background from settings, paid option?")
+
+
+            //In case we want to load the album art blurred in the background
+            loadArtImages(metadataCompat)
+            //TODO("Leave and option to show blurred background from settings, paid option?")
 
         playback_imageview_bg_slider.pivx = pivX
         playback_imageview_bg_slider.pivy = pivY
@@ -142,21 +141,39 @@ class PlaybackActivity : AppCompatActivity() {
 
     }
 
-    private fun showBlurredBackground(metadataCompat: MediaMetadataCompat){
+    private fun loadArtImages(metadataCompat: MediaMetadataCompat) {
         mHandler = Handler()
         Thread(Runnable {
 
             mHandler.post {
 
 
+
+                var options = RequestOptions()
+                options.override(400,400)
+
+
+
+
                 var myBitmap: Bitmap
                 try {
 
-                    //load the blurred background
+                    Glide.with(applicationContext)
+                        .load(Uri.parse(metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ART_URI)))
+                        .placeholder(R.drawable.ic_empty_album)
+                        .circleCrop()
+                        .into(playback_imageview_album)
+
+
                     myBitmap = MediaStore.Images.Media.getBitmap(
                         this.contentResolver,
                         Uri.parse(metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ART_URI))
                     )
+
+
+//                    playback_imageview_album.source = myBitmap
+//                    playback_imageview_album.background =BitmapDrawable(resources,myBitmap)
+                    Log.d(TAG, metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ART_URI))
                     val blurredBackground = Utils.blurImage(this@PlaybackActivity, myBitmap, 250, 250)
                     playback_constraint_layout.background = BitmapDrawable(resources, blurredBackground)
 
@@ -177,6 +194,7 @@ class PlaybackActivity : AppCompatActivity() {
             Log.v(TAG, "onConnected")
             try {
                 connectToSession(mMediaBrowser.sessionToken)
+
             } catch (e: RemoteException) {
                 Log.e(TAG, "could not connect media controller")
             }
@@ -255,17 +273,21 @@ class PlaybackActivity : AppCompatActivity() {
 
 
     override fun onDestroy() {
-        super.onDestroy()
+
         mMediaBrowser.disconnect()
         stopSeekbarUpdate()
         mExecutorService.shutdown()
+        Log.d(TAG, "called on destroy")
+        super.onDestroy()
 
 
     }
 
     override fun onStop() {
-        super.onStop()
+
+        Log.d(TAG, "called on stop")
         stopSeekbarUpdate()
+        super.onStop()
     }
 
     override fun onResume() {
@@ -347,37 +369,55 @@ class PlaybackActivity : AppCompatActivity() {
             Log.d(TAG, "lastPlaybackState is null")
             return
         }
-        var currentPosition = mLastPlaybackState!!.position
-        if (mLastPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING) {
-            // Calculate the elapsed time between the last position update and now and unless
-            // paused, we can assume (delta * speed) + current position is approximately the
-            // latest position. This ensure that we do not repeatedly call the getPlaybackState()
-            // on MediaControllerCompat.
-            val timeDelta = SystemClock.elapsedRealtime() - mLastPlaybackState!!.lastPositionUpdateTime
-            currentPosition += (timeDelta.toInt() * mLastPlaybackState!!.playbackSpeed).toLong()
-        }
+
+        if(!mScheduleFuture!!.isCancelled) {
 
 
-        //display  elapsed time / total time
-        playback_playtime.text = "${Utils.convertToTime(currentPosition)}  /  ${Utils.convertToTime(
-            mediaController!!.metadata!!.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
-        )}"
 
-        //calculate the percentage played of the song
-        percentage =
-            (currentPosition.toDouble() / mediaController!!.metadata!!.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toDouble())
+            var currentPosition = mLastPlaybackState!!.position
+            if (mLastPlaybackState!!.state == PlaybackStateCompat.STATE_PLAYING) {
+                // Calculate the elapsed time between the last position update and now and unless
+                // paused, we can assume (delta * speed) + current position is approximately the
+                // latest position. This ensure that we do not repeatedly call the getPlaybackState()
+                // on MediaControllerCompat.
+                val timeDelta = SystemClock.elapsedRealtime() - mLastPlaybackState!!.lastPositionUpdateTime
+                currentPosition += (timeDelta.toInt() * mLastPlaybackState!!.playbackSpeed).toLong()
+            }
+            //if we reach 100% of the song, we should prevent the slider of rotating indefinitely
 
-        if (!isUILocked) {
-            //Rotate the dial depending on the progress of the song.
-            playback_imageview_bg_slider.rotate((percentage * 360).toFloat(), PROGRESS_UPDATE_INTERNAL)
 
-            //Draw the progress bar to match the dial
-            playback_progress_bar.setPosEnd((percentage * 360).toFloat())
-        }
 
-        //if we reach 100% of the song, we should prevent the slider of rotating indefinitely
-        if (percentage >= 1) {
-            stopSeekbarUpdate()
+
+
+            //calculate the percentage played of the song
+            percentage =
+                (currentPosition.toDouble() / mediaController!!.metadata!!.getLong(MediaMetadataCompat.METADATA_KEY_DURATION).toDouble())
+
+            if (percentage >= 1) {
+                stopSeekbarUpdate()
+                return
+            }
+
+            //display  elapsed time / total time
+            playback_playtime.text = "${Utils.convertToTime(currentPosition)}  /  ${Utils.convertToTime(
+                mediaController!!.metadata!!.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
+            )}"
+
+            if (!isUILocked) {
+                //Rotate the dial depending on the progress of the song.
+                playback_imageview_bg_slider.rotate((percentage * 360).toFloat(), PROGRESS_UPDATE_INTERNAL)
+
+                //Draw the progress bar to match the dial
+                playback_progress_bar.setPosEnd((percentage * 360).toFloat())
+
+
+            }
+
+
+
+
+        }else{
+            return
         }
 
 
@@ -395,9 +435,14 @@ class PlaybackActivity : AppCompatActivity() {
 
     private fun stopSeekbarUpdate() {
         if (mScheduleFuture != null) {
-            mScheduleFuture!!.cancel(false)
+            mScheduleFuture!!.cancel(true)
         }
     }
+
+//    override fun onBackPressed() {
+//        val intent  = Intent(this,MainActivity::class.java)
+//        startActivity(intent)
+//    }
 
 }
 

@@ -1,15 +1,11 @@
 package ca.makakolabs.makakomusic.ui.activities
 
 import android.Manifest
-import android.app.Activity
 import android.content.ComponentName
-import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -26,16 +22,14 @@ import ca.makakolabs.makakomusic.R
 import ca.makakolabs.makakomusic.data.model.Song
 import ca.makakolabs.makakomusic.ui.adapters.MusicPagerAdapter
 import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import ca.makakolabs.makakomusic.ui.helpers.ZoomOutTransformation
-import ca.makakolabs.makakomusic.services.MakakoPlaybackService
+import ca.makakolabs.makakomusic.MakakoPlaybackService
 import ca.makakolabs.makakomusic.ui.fragments.AlbumsFragment
 import ca.makakolabs.makakomusic.ui.fragments.SongsFragment
 import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.playback_activity.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener, MediaActionListener {
@@ -278,7 +272,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             when (state?.state) {
                 PlaybackStateCompat.STATE_PLAYING -> {
-                    fab.setImageBitmap(currentSong.description.iconBitmap)
+                    //TODO("change the icon for something animated on the button")
+//                    fab.setImageBitmap(state.extras.currentSong.description.iconBitmap)
 
 
                 }

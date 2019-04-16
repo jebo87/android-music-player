@@ -30,7 +30,7 @@ class CircleTransform : Transformation {
 
 
         //In case we need to paint a hole in the middle like in old vinyls
-//        paintHoleInMiddle(canvas,r)
+        //paintHoleInMiddle(canvas,r)
 
 
 
