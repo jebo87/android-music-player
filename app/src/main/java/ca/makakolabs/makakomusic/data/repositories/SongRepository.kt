@@ -73,21 +73,6 @@ class SongRepository (private val application: Application) : MusicRepository{
                 val audioAlbumId: Long = cursor.getLong(albumIdColumn)
                 val audioDuration: Long = cursor.getLong(durationColumn)
 
-
-
-                // Add the current music to the list
-
-
-//                var mMediaMetadataCompat =MediaMetadataCompat.Builder()
-//                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, audioId)
-//                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, audioAlbum)
-//                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, audioArtist)
-//                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationColumn.toLong())
-//                    .putString(MediaMetadataCompat.METADATA_KEY_GENRE, "")
-//                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, "")
-//                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, audioTitle)
-//                    .build()
-
                 var song = Song(audioId,audioTitle,audioArtist,audioAlbumId,audioAlbum,audioDuration)
 
                 loadedSongs.add(song)
@@ -156,21 +141,6 @@ class SongRepository (private val application: Application) : MusicRepository{
                 val audioAlbum: String = cursor.getString(albumColumn)
                 val audioAlbumId: Long = cursor.getLong(albumIdColumn)
                 val audioDuration: Long = cursor.getLong(durationColumn)
-
-
-
-                // Add the current music to the list
-
-
-//                var mMediaMetadataCompat =MediaMetadataCompat.Builder()
-//                    .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, audioId)
-//                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, audioAlbum)
-//                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, audioArtist)
-//                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationColumn.toLong())
-//                    .putString(MediaMetadataCompat.METADATA_KEY_GENRE, "")
-//                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, "")
-//                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE, audioTitle)
-//                    .build()
 
                song= Song(audioId,audioTitle,audioArtist,audioAlbumId,audioAlbum,audioDuration)
 

@@ -79,10 +79,12 @@ class AndroidPlayback(context: Context) {
     }
 
     fun pause() {
+        Log.d(TAG, "Pausing")
         if (!::player.isInitialized)
             return
         player.playWhenReady = false
         isPlaying = false
+        Log.d(TAG, "Paused")
 
     }
 

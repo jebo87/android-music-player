@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+                android:name="vector"
+                android:width="367dp"
+                android:height="87dp"
+                android:viewportWidth="367"
+                android:viewportHeight="87">
+            <path
+                    android:name="path"
+                    android:pathData="M 367 43.5 C 367 66.346 349.388 85.079 327 86.861 C 325.845 86.953 324.678 87 323.5 87 C 322.322 87 321.155 86.953 320 86.861 C 297.612 85.079 280 66.346 280 43.5 C 280 20.654 297.612 1.921 320 0.139 C 321.155 0.047 322.322 0 323.5 0 C 324.678 0 325.845 0.047 327 0.139 C 349.388 1.921 367 20.654 367 43.5 Z"
+                    android:fillColor="#333333"
+                    android:strokeWidth="1"/>
+        </vector>
+    </aapt:attr>
+    <target android:name="path">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                    android:propertyName="pathData"
+                    android:duration="100"
+                    android:valueFrom="M 367 43.5 C 367 66.346 349.388 85.079 327 86.861 C 325.845 86.953 324.678 87 323.5 87 C 322.322 87 321.155 86.953 320 86.861 C 297.612 85.079 280 66.346 280 43.5 C 280 20.654 297.612 1.921 320 0.139 C 321.155 0.047 322.322 0 323.5 0 C 324.678 0 325.845 0.047 327 0.139 C 349.388 1.921 367 20.654 367 43.5 Z"
+                    android:valueTo="M 367 43.5 C 367 66.346 349.388 85.079 327 86.861 C 325.845 86.953 324.678 87 323.5 87 C 322.322 87 41.155 86.953 40 86.861 C 17.612 85.079 0 66.346 0 43.5 C 0 20.654 17.612 1.921 40 0.139 C 41.155 0.047 322.322 0 323.5 0 C 324.678 0 325.845 0.047 327 0.139 C 349.388 1.921 367 20.654 367 43.5 Z"
+                    android:valueType="pathType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+        </aapt:attr>
+    </target>
+</animated-vector>

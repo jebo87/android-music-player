@@ -97,10 +97,11 @@ class PlaybackActivity : AppCompatActivity() {
                     var metrics = DisplayMetrics()
                     windowManager.defaultDisplay.getMetrics(metrics)
 
-                     density = metrics.density
+                    density = metrics.density
 
                     playback_progress_bar.setDensity(density)
                     playback_imageview_album.density = density
+                    //TODO: make sure it works for all screen sizes
                     playback_progress_bar.setWidthHeight(294 * density, 294 * density)
 
 
@@ -146,15 +147,8 @@ class PlaybackActivity : AppCompatActivity() {
         Thread(Runnable {
 
             mHandler.post {
-
-
-
                 var options = RequestOptions()
                 options.override(400,400)
-
-
-
-
                 var myBitmap: Bitmap
                 try {
 
@@ -164,20 +158,16 @@ class PlaybackActivity : AppCompatActivity() {
                         .circleCrop()
                         .into(playback_imageview_album)
 
-
+                    Log.d(TAG,metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ART_URI))
                     myBitmap = MediaStore.Images.Media.getBitmap(
                         this.contentResolver,
                         Uri.parse(metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ART_URI))
                     )
-
-
 //                    playback_imageview_album.source = myBitmap
 //                    playback_imageview_album.background =BitmapDrawable(resources,myBitmap)
                     Log.d(TAG, metadataCompat.getString(MediaMetadataCompat.METADATA_KEY_ART_URI))
                     val blurredBackground = Utils.blurImage(this@PlaybackActivity, myBitmap, 250, 250)
                     playback_constraint_layout.background = BitmapDrawable(resources, blurredBackground)
-
-
                 } catch (e: FileNotFoundException) {
                     playback_constraint_layout.setBackgroundResource(R.drawable.black_gradient)
                 }
@@ -209,17 +199,12 @@ class PlaybackActivity : AppCompatActivity() {
     @Throws(RemoteException::class)
     private fun connectToSession(mToken: MediaSessionCompat.Token) {
         if (mediaController == null) {
-
-
             mToken.also { token ->
-
                 // Create a MediaControllerCompat
                 val mediaController = MediaControllerCompat(
                     this@PlaybackActivity, // Context
                     token
                 )
-
-
                 // Save the controller
                 MediaControllerCompat.setMediaController(this@PlaybackActivity, mediaController)
 
@@ -228,22 +213,16 @@ class PlaybackActivity : AppCompatActivity() {
 
                 val pbState = mediaController.playbackState
 
-
                 // Register a Callback to stay in sync
                 mediaController.registerCallback(controllerCallback)
                 updatePlaybackState(pbState)
                 updateUI(metadata!!)
                 playback_imageview_bg_slider.mediaController = mediaController
-
-
                 playback_pause_button.setOnClickListener {
                     when (mLastPlaybackState?.state) {
                         PlaybackStateCompat.STATE_PLAYING -> {
                             Log.d(TAG, "Is Playing, going to pause now")
-
                             mediaController.transportControls.pause()
-
-
                         }
                         PlaybackStateCompat.STATE_PAUSED -> {
                             Log.d(TAG, "Is paused, going to play now")
@@ -262,13 +241,10 @@ class PlaybackActivity : AppCompatActivity() {
                     Log.d(TAG, "Skipping to previous song")
                     mediaController.transportControls.skipToPrevious()
                 }
-
-
             }
             scheduleSeekbarUpdate()
             mediaController = MediaControllerCompat.getMediaController(this@PlaybackActivity)
         }
-
     }
 
 
